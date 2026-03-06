@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 from engine.physics import DT, PlayerState
-from renderer.vfx import VFXSystem, _TRAIL_MAXLEN, _PARTICLE_COUNT, _PARTICLE_LIFETIME
+from renderer.vfx import VFXSystem, _TRAIL_MAXLEN, _PARTICLE_COUNT, _PARTICLE_LIFETIME, _CONFETTI_COUNT, _CONFETTI_LIFETIME
 
 
 # ---------------------------------------------------------------------------
@@ -142,6 +142,90 @@ def test_reset_prevents_spurious_landing_on_next_update() -> None:
     vfx.update(_make_state(on_ground=True), DT)
     # _was_on_ground is reset to True, so no False→True transition
     assert vfx.particle_count == 0
+
+
+# ---------------------------------------------------------------------------
+# Death confetti
+# ---------------------------------------------------------------------------
+
+def test_spawn_death_confetti_creates_particles() -> None:
+    """spawn_death_confetti() must create _CONFETTI_COUNT particles."""
+    vfx = VFXSystem()
+    assert vfx.particle_count == 0
+    vfx.spawn_death_confetti(5.0, 2.0)
+    assert vfx.particle_count == _CONFETTI_COUNT
+
+
+def test_confetti_particles_have_custom_color() -> None:
+    """Confetti particles must have a non-None color attribute."""
+    vfx = VFXSystem()
+    vfx.spawn_death_confetti(5.0, 2.0)
+    # Access internal particles to verify color is set
+    assert all(p.color is not None for p in vfx._particles)
+
+
+def test_confetti_particles_expire_over_time() -> None:
+    """All confetti particles must expire after _CONFETTI_LIFETIME seconds."""
+    vfx = VFXSystem()
+    vfx.spawn_death_confetti(5.0, 2.0)
+    assert vfx.particle_count > 0
+
+    # Advance time well past _CONFETTI_LIFETIME
+    steps = int(_CONFETTI_LIFETIME / DT) + 50
+    for _ in range(steps):
+        vfx.advance_particles(DT)
+
+    assert vfx.particle_count == 0
+
+
+# ---------------------------------------------------------------------------
+# advance_particles() public API
+# ---------------------------------------------------------------------------
+
+def test_advance_particles_decreases_lifetime() -> None:
+    """advance_particles() must reduce particle lifetime."""
+    vfx = VFXSystem()
+    vfx.on_land(5.0, 0.0)
+    initial_lifetimes = [p.lifetime for p in vfx._particles]
+
+    vfx.advance_particles(DT)
+
+    for i, p in enumerate(vfx._particles):
+        assert p.lifetime < initial_lifetimes[i]
+
+
+def test_advance_particles_moves_confetti() -> None:
+    """advance_particles() must move confetti particles (position changes)."""
+    vfx = VFXSystem()
+    vfx.spawn_death_confetti(5.0, 2.0)
+
+    # Store initial positions
+    initial_positions = [(p.wx, p.wy) for p in vfx._particles]
+
+    # Advance several steps
+    for _ in range(10):
+        vfx.advance_particles(DT)
+
+    # At least some particles should have moved
+    moved_count = sum(
+        1 for i, p in enumerate(vfx._particles)
+        if (p.wx, p.wy) != initial_positions[i]
+    )
+    assert moved_count > 0
+
+
+def test_advance_particles_applies_gravity_to_confetti() -> None:
+    """Confetti particles must fall due to gravity (vy decreases)."""
+    vfx = VFXSystem()
+    vfx.spawn_death_confetti(5.0, 2.0)
+
+    initial_vy = [p.vy for p in vfx._particles]
+
+    vfx.advance_particles(DT)
+
+    # All confetti should have lower vy due to gravity
+    for i, p in enumerate(vfx._particles):
+        assert p.vy < initial_vy[i]
 
 
 # ---------------------------------------------------------------------------

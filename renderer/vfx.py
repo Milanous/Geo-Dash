@@ -35,6 +35,8 @@ class _Particle:
     vy: float          # velocity in blocks/s (upward = positive in screen)
     lifetime: float    # seconds remaining
     max_lifetime: float
+    color: tuple[int, int, int] | None = None  # optional custom color (confetti)
+    size: float = 1.0  # size multiplier
 
 
 # ---------------------------------------------------------------------------
@@ -47,6 +49,21 @@ _PARTICLE_LIFETIME: float = 0.3 # seconds
 _PARTICLE_SPEED_MIN: float = 0.5  # blocks/s
 _PARTICLE_SPEED_MAX: float = 2.0  # blocks/s
 _GLOW_RADIUS_PX: int = 22       # radius of bloom halo (pixels)
+
+# Death confetti constants
+_CONFETTI_COUNT: int = 40        # number of confetti particles on death
+_CONFETTI_LIFETIME: float = 1.5  # seconds
+_CONFETTI_SPEED_MIN: float = 3.0  # blocks/s
+_CONFETTI_SPEED_MAX: float = 8.0  # blocks/s
+_CONFETTI_GRAVITY: float = 15.0  # blocks/s² downward for natural falling
+_CONFETTI_COLORS: list[tuple[int, int, int]] = [
+    (255, 80, 80),    # red
+    (255, 200, 80),   # yellow
+    (80, 200, 255),   # cyan
+    (255, 120, 200),  # pink
+    (120, 255, 120),  # green
+    (200, 120, 255),  # purple
+]
 
 
 # ---------------------------------------------------------------------------
@@ -99,10 +116,25 @@ class VFXSystem:
         self._was_on_ground = player_state.on_ground
 
         # 3. Advance and expire particles
+        self.advance_particles(dt)
+
+    def advance_particles(self, dt: float) -> None:
+        """
+        Advance and expire all particles by one timestep.
+
+        Public method — can be called independently to animate particles
+        during death sequence when player physics is paused.
+
+        Args:
+            dt: Physics timestep in seconds.
+        """
         alive: list[_Particle] = []
         for p in self._particles:
             p.wx += p.vx * dt
             p.wy += p.vy * dt
+            # Apply gravity to confetti particles for natural falling effect
+            if p.color is not None:
+                p.vy -= _CONFETTI_GRAVITY * dt
             p.lifetime -= dt
             if p.lifetime > 0.0:
                 alive.append(p)
@@ -136,6 +168,31 @@ class VFXSystem:
         self._trail.clear()
         self._particles.clear()
         self._was_on_ground = True
+
+    def spawn_death_confetti(self, bx: float, by: float) -> None:
+        """
+        Spawn a colorful confetti explosion at world-block position (bx, by).
+
+        Called when the player dies to create a celebratory death effect.
+
+        Args:
+            bx: Player world x in blocks.
+            by: Player world y in blocks.
+        """
+        for _ in range(_CONFETTI_COUNT):
+            angle = random.uniform(0.0, 2.0 * math.pi)
+            speed = random.uniform(_CONFETTI_SPEED_MIN, _CONFETTI_SPEED_MAX)
+            color = random.choice(_CONFETTI_COLORS)
+            self._particles.append(_Particle(
+                wx=bx + random.uniform(-0.2, 0.2),
+                wy=by + random.uniform(-0.2, 0.2),
+                vx=math.cos(angle) * speed,
+                vy=math.sin(angle) * speed * 1.5,  # more vertical spread
+                lifetime=_CONFETTI_LIFETIME * random.uniform(0.7, 1.0),
+                max_lifetime=_CONFETTI_LIFETIME,
+                color=color,
+                size=random.uniform(1.5, 3.0),
+            ))
 
     # ------------------------------------------------------------------
     # Accessors for tests (no pygame)
@@ -192,12 +249,24 @@ class VFXSystem:
         # 3. Particles — small filled circles, fade as lifetime shrinks
         for p in self._particles:
             alpha_ratio = p.lifetime / p.max_lifetime
-            radius = max(1, int(4 * alpha_ratio))
-            brightness = int(255 * alpha_ratio)
-            color = (brightness, int(brightness * 0.85), 60)
             px_screen = int(p.wx * bs) - camera_offset_px + bs // 2
             py_screen = screen_h - int((p.wy + 1) * bs) + bs // 2
-            pygame.draw.circle(surface, color, (px_screen, py_screen), radius)
+
+            if p.color is not None:
+                # Confetti particle — use custom color with fade
+                radius = max(2, int(5 * p.size * alpha_ratio))
+                faded_color = (
+                    int(p.color[0] * alpha_ratio),
+                    int(p.color[1] * alpha_ratio),
+                    int(p.color[2] * alpha_ratio),
+                )
+                pygame.draw.circle(surface, faded_color, (px_screen, py_screen), radius)
+            else:
+                # Landing particle — original behavior
+                radius = max(1, int(4 * alpha_ratio))
+                brightness = int(255 * alpha_ratio)
+                color = (brightness, int(brightness * 0.85), 60)
+                pygame.draw.circle(surface, color, (px_screen, py_screen), radius)
 
     def _draw_glow(self, surface: "pygame.Surface", cx: int, cy: int) -> None:
         """Draw a soft radial bloom halo centred at (cx, cy)."""
