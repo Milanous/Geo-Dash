@@ -447,12 +447,12 @@
     {
       "x": 88,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 89,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 90,
@@ -925,6 +925,16 @@
       "type": "solid"
     },
     {
+      "x": 88,
+      "y": 2,
+      "type": "solid"
+    },
+    {
+      "x": 89,
+      "y": 2,
+      "type": "solid"
+    },
+    {
       "x": 90,
       "y": 2,
       "type": "solid"
@@ -1395,6 +1405,16 @@
       "type": "solid"
     },
     {
+      "x": 88,
+      "y": 3,
+      "type": "solid"
+    },
+    {
+      "x": 89,
+      "y": 3,
+      "type": "solid"
+    },
+    {
       "x": 90,
       "y": 3,
       "type": "solid"
@@ -1865,6 +1885,16 @@
       "type": "solid"
     },
     {
+      "x": 88,
+      "y": 4,
+      "type": "solid"
+    },
+    {
+      "x": 89,
+      "y": 4,
+      "type": "solid"
+    },
+    {
       "x": 90,
       "y": 4,
       "type": "solid"
@@ -1930,6 +1960,11 @@
       "type": "solid"
     },
     {
+      "x": 17,
+      "y": 5,
+      "type": "spike"
+    },
+    {
       "x": 18,
       "y": 5,
       "type": "spike"
@@ -1938,6 +1973,26 @@
       "x": 19,
       "y": 5,
       "type": "spike"
+    },
+    {
+      "x": 23,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 24,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 25,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 26,
+      "y": 5,
+      "type": "solid"
     },
     {
       "x": 27,
@@ -2080,14 +2135,24 @@
       "type": "solid"
     },
     {
-      "x": 90,
-      "y": 5,
-      "type": "solid"
-    },
-    {
       "x": 99,
       "y": 5,
       "type": "finish"
+    },
+    {
+      "x": 26,
+      "y": 6,
+      "type": "solid"
+    },
+    {
+      "x": 27,
+      "y": 6,
+      "type": "solid"
+    },
+    {
+      "x": 28,
+      "y": 6,
+      "type": "solid"
     },
     {
       "x": 29,
@@ -2145,14 +2210,9 @@
       "type": "solid"
     },
     {
-      "x": 65,
-      "y": 6,
-      "type": "spike"
-    },
-    {
       "x": 66,
       "y": 6,
-      "type": "solid"
+      "type": "spike"
     },
     {
       "x": 67,
@@ -2205,14 +2265,19 @@
       "type": "solid"
     },
     {
-      "x": 90,
-      "y": 6,
-      "type": "solid"
-    },
-    {
       "x": 99,
       "y": 6,
       "type": "finish"
+    },
+    {
+      "x": 29,
+      "y": 7,
+      "type": "solid"
+    },
+    {
+      "x": 30,
+      "y": 7,
+      "type": "solid"
     },
     {
       "x": 31,
@@ -2235,19 +2300,9 @@
       "type": "solid"
     },
     {
-      "x": 68,
-      "y": 7,
-      "type": "spike"
-    },
-    {
-      "x": 69,
-      "y": 7,
-      "type": "solid"
-    },
-    {
       "x": 70,
       "y": 7,
-      "type": "solid"
+      "type": "spike"
     },
     {
       "x": 71,
@@ -2275,14 +2330,14 @@
       "type": "solid"
     },
     {
-      "x": 90,
-      "y": 7,
-      "type": "solid"
-    },
-    {
       "x": 99,
       "y": 7,
       "type": "finish"
+    },
+    {
+      "x": 32,
+      "y": 8,
+      "type": "solid"
     },
     {
       "x": 33,
@@ -2295,32 +2350,7 @@
       "type": "solid"
     },
     {
-      "x": 71,
-      "y": 8,
-      "type": "spike"
-    },
-    {
-      "x": 72,
-      "y": 8,
-      "type": "solid"
-    },
-    {
-      "x": 73,
-      "y": 8,
-      "type": "solid"
-    },
-    {
-      "x": 74,
-      "y": 8,
-      "type": "solid"
-    },
-    {
       "x": 87,
-      "y": 8,
-      "type": "solid"
-    },
-    {
-      "x": 90,
       "y": 8,
       "type": "solid"
     },
@@ -2328,16 +2358,6 @@
       "x": 99,
       "y": 8,
       "type": "finish"
-    },
-    {
-      "x": 74,
-      "y": 9,
-      "type": "spike"
-    },
-    {
-      "x": 90,
-      "y": 9,
-      "type": "solid"
     },
     {
       "x": 99,
@@ -2353,6 +2373,11 @@
       "x": 99,
       "y": 10,
       "type": "finish"
+    },
+    {
+      "x": 90,
+      "y": 11,
+      "type": "solid"
     },
     {
       "x": 99,
@@ -2360,9 +2385,19 @@
       "type": "finish"
     },
     {
+      "x": 90,
+      "y": 12,
+      "type": "solid"
+    },
+    {
       "x": 99,
       "y": 12,
       "type": "finish"
+    },
+    {
+      "x": 90,
+      "y": 13,
+      "type": "solid"
     },
     {
       "x": 99,
@@ -2370,14 +2405,44 @@
       "type": "finish"
     },
     {
+      "x": 90,
+      "y": 14,
+      "type": "solid"
+    },
+    {
       "x": 99,
       "y": 14,
       "type": "finish"
     },
     {
+      "x": 90,
+      "y": 15,
+      "type": "solid"
+    },
+    {
       "x": 99,
       "y": 15,
       "type": "finish"
+    },
+    {
+      "x": 90,
+      "y": 16,
+      "type": "solid"
+    },
+    {
+      "x": 90,
+      "y": 17,
+      "type": "solid"
+    },
+    {
+      "x": 90,
+      "y": 18,
+      "type": "solid"
+    },
+    {
+      "x": 90,
+      "y": 19,
+      "type": "solid"
     }
   ]
 }

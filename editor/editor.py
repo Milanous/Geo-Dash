@@ -38,6 +38,7 @@ class Editor:
         """
         self._world: World = World(width, height)
         self._selected: TileType = TileType.SOLID
+        self._erase_mode: bool = False
 
     # ------------------------------------------------------------------
     # Properties
@@ -52,6 +53,11 @@ class Editor:
     def selected_tile_type(self) -> TileType:
         """Currently selected tile type for placement."""
         return self._selected
+
+    @property
+    def erase_mode(self) -> bool:
+        """True if the editor is in erase (delete) mode."""
+        return self._erase_mode
 
     # ------------------------------------------------------------------
     # Tile selection
@@ -74,6 +80,18 @@ class Editor:
                 "Use erase_tile() to remove tiles."
             )
         self._selected = tile_type
+        self._erase_mode = False
+
+    def set_erase_mode(self, enabled: bool = True) -> None:
+        """
+        Enable or disable erase mode.
+
+        When erase mode is enabled, place_tile() will erase tiles instead.
+
+        Args:
+            enabled: True to enable erase mode, False to disable.
+        """
+        self._erase_mode = enabled
 
     # ------------------------------------------------------------------
     # Tile placement / erasure
@@ -83,13 +101,17 @@ class Editor:
         """
         Place the currently selected tile type at block position (bx, by).
 
+        If erase_mode is enabled, erases the tile instead.
         Out-of-bounds coordinates are silently ignored (delegated to World).
 
         Args:
             bx: Horizontal block coordinate (float, floored to int grid index).
             by: Vertical block coordinate (float, floored to int grid index).
         """
-        self._world.set_tile(bx, by, self._selected)
+        if self._erase_mode:
+            self._world.set_tile(bx, by, TileType.AIR)
+        else:
+            self._world.set_tile(bx, by, self._selected)
 
     def erase_tile(self, bx: float, by: float) -> None:
         """

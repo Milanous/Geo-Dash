@@ -14,23 +14,37 @@ from engine.player import Player
 from engine.world import TileType, World
 
 # ---------------------------------------------------------------------------
-# Palette
+# Palette (Geometry Dash Stereo Madness original colors)
 # ---------------------------------------------------------------------------
 
-_SOLID_COLOR = (160, 160, 160)
-_SPIKE_COLOR = (255, 110, 40)
-_FINISH_COLOR = (50, 220, 80)
-_PLAYER_COLOR = (220, 50, 50)
-_PLAYER_BORDER_COLOR = (0, 0, 0)
+# Blocks: Black interior with neon outline (default: cyan/blue)
+_SOLID_FILL = (0, 0, 0)            # Black block interior
+_SOLID_OUTLINE = (0, 201, 255)     # Cyan neon outline (#00C9FF)
+_SOLID_COLOR = _SOLID_FILL         # For tint compatibility
 
-# Gradient sky colours (top → bottom)
-_SKY_TOP    = (8,  8, 38)
-_SKY_BOTTOM = (42, 42, 88)
+# Spikes: Black body with white edges for visibility
+_SPIKE_FILL = (0, 0, 0)            # Black spike body
+_SPIKE_OUTLINE = (255, 255, 255)   # White outline (#FFFFFF)
+_SPIKE_COLOR = _SPIKE_FILL         # For tint compatibility
+
+_FINISH_COLOR = (255, 215, 0)      # Golden finish line
+
+# Player: Lime green primary (#AFE32E), Cyan secondary (#00C9FF)
+_PLAYER_PRIMARY = (175, 227, 46)   # GD lime green
+_PLAYER_SECONDARY = (0, 201, 255)  # GD cyan details
+_PLAYER_BORDER_COLOR = (0, 0, 0)   # Black border (2px)
+
+# Background: #0066FF at ~25% brightness (deep blue)
+_SKY_TOP    = (0, 20, 51)          # Dark blue at top (~20% of #0066FF)
+_SKY_BOTTOM = (0, 30, 77)          # Slightly brighter at bottom (~30%)
+
+# Ground line: bright neon line at collision boundary
+_GROUND_LINE_COLOR = (255, 255, 255)  # White/neon ground line
 
 # Player sprite dimensions (fraction of block size)
 _INNER_RATIO: float = 0.55   # inner square is 55% of block size
 _BORDER_OUTER: int = 2       # outer square border thickness (px)
-_BORDER_INNER: int = 1       # inner square border thickness (px)
+_BORDER_INNER: int = 2       # inner square border thickness (px)
 
 
 # ---------------------------------------------------------------------------
@@ -147,21 +161,19 @@ class GameRenderer:
                 rect = pygame.Rect(sx, sy, bs, bs)
 
                 if tile == TileType.SOLID:
-                    key = (col, row)
-                    if key not in self._tint_cache:
-                        self._tint_cache[key] = _compute_tint(_SOLID_COLOR, col, row)
-                    pygame.draw.rect(surface, self._tint_cache[key], rect)
+                    # GD style: black fill + neon cyan outline
+                    pygame.draw.rect(surface, _SOLID_FILL, rect)
+                    pygame.draw.rect(surface, _SOLID_OUTLINE, rect, 2)  # 2px outline
                 elif tile == TileType.SPIKE:
-                    key = (col, row)
-                    if key not in self._tint_cache:
-                        self._tint_cache[key] = _compute_tint(_SPIKE_COLOR, col, row)
+                    # GD style: black body + white edges
                     # Filled equilateral triangle occupying the full 1×1 tile area
                     pts = [
                         (sx,           sy + bs),   # bottom-left
                         (sx + bs,      sy + bs),   # bottom-right
                         (sx + bs // 2, sy),         # apex
                     ]
-                    pygame.draw.polygon(surface, self._tint_cache[key], pts)
+                    pygame.draw.polygon(surface, _SPIKE_FILL, pts)
+                    pygame.draw.polygon(surface, _SPIKE_OUTLINE, pts, 2)  # white outline
                 elif tile == TileType.FINISH:
                     # Bright green vertical bar centred in the block
                     bar_w = 4
@@ -184,16 +196,16 @@ class GameRenderer:
         # --- Build the sprite on an offscreen surface (with alpha) ---
         sprite = pygame.Surface((bs, bs), pygame.SRCALPHA)
 
-        # Outer square: red fill + black border
+        # Outer square: lime green fill + black border (GD style)
         outer_rect = pygame.Rect(0, 0, bs, bs)
-        pygame.draw.rect(sprite, _PLAYER_COLOR, outer_rect)
+        pygame.draw.rect(sprite, _PLAYER_PRIMARY, outer_rect)
         pygame.draw.rect(sprite, _PLAYER_BORDER_COLOR, outer_rect, _BORDER_OUTER)
 
-        # Inner square: centered at ~55% of block size
+        # Inner square: cyan secondary color with black border
         inner_size = int(bs * _INNER_RATIO)
         inner_offset = (bs - inner_size) // 2
         inner_rect = pygame.Rect(inner_offset, inner_offset, inner_size, inner_size)
-        pygame.draw.rect(sprite, _PLAYER_COLOR, inner_rect)
+        pygame.draw.rect(sprite, _PLAYER_SECONDARY, inner_rect)
         pygame.draw.rect(sprite, _PLAYER_BORDER_COLOR, inner_rect, _BORDER_INNER)
 
         # --- Apply clockwise rotation ---

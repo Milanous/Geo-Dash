@@ -12,6 +12,8 @@ from engine.physics import (
     JUMP_VELOCITY,
     PLAYER_SPEED,
     ROTATION_SPEED_DEG_PER_STEP,
+    SPIKE_HITBOX_SHRINK,
+    WALL_CORNER_FORGIVENESS,
     PlayerState,
 )
 from engine.world import TileType, World
@@ -97,7 +99,14 @@ class Player:
 
         Resolution order:
           1. World bottom boundary (y <= 0) — always enforced.
-          2. Tile SOLID/SPIKE detection based on current (x, y).
+          2. Floor landing — player falling onto SOLID tiles.
+          3. Wall collision — player running into SOLID tile side (kills).
+          4. Hazard/finish detection.
+        
+        Landing vs Wall logic:
+          - If player is FALLING (vy <= 0) AND player's bottom is near the
+            top of the block (within LANDING_TOLERANCE), it's a landing.
+          - Otherwise, hitting a SOLID block from the side is death.
         """
         # World bottom boundary — catches player even with no tiles (AC Story 1.6)
         if self.state.y <= 0.0:
@@ -108,29 +117,46 @@ class Player:
         if world is None:
             return
 
-        # Tile collision
-        col = int(self.state.x)
-        row = int(self.state.y)
-        tile = world.tile_at(col, row)
+        # Tolerance for "coming from above" — player.y must be >= tile_top - this
+        LANDING_TOLERANCE = 0.35  # ~10 pixels of grace for landing on corners
 
-        # 1. Floor collision (bottom-left corner check)
-        if tile == TileType.SOLID and self.state.vy <= 0.0:
-            # Snap to the top surface of this tile row
-            self.state.y = float(row + 1)
-            self.state.vy = 0.0
-            self.state.on_ground = True
+        # 1. Floor collision — check BOTH bottom corners for landing
+        if self.state.vy <= 0.0:
+            left_col = int(self.state.x)
+            right_col = int(self.state.x + 0.9)
+            bot_row = int(self.state.y)
+            
+            for col in (left_col, right_col):
+                if world.tile_at(col, bot_row) == TileType.SOLID:
+                    self.state.y = float(bot_row + 1)
+                    self.state.vy = 0.0
+                    self.state.on_ground = True
+                    break
 
         # 2. Wall collision (front-face / right-side check)
-        # After floor resolution, check if the player's right edge overlaps
-        # a SOLID tile at the player's body height.
+        # Check blocks that the player's right edge overlaps
         wall_col = int(self.state.x + 0.9)
         for wall_row in (int(self.state.y), int(self.state.y + 0.9)):
             if world.tile_at(wall_col, wall_row) == TileType.SOLID:
-                # Not a wall hit if the player is standing on top of that tile
-                if self.state.y < float(wall_row + 1):
-                    self.alive = False
-                    self.state.finished = False
-                    return
+                tile_top = float(wall_row + 1)
+                
+                # Can this be a landing instead of a wall hit?
+                # Landing = player is falling AND player's bottom is close to tile's top
+                can_land = (self.state.vy <= 0.0 and 
+                           self.state.y >= tile_top - LANDING_TOLERANCE)
+                
+                if can_land:
+                    # Land on top of the block
+                    self.state.y = tile_top
+                    self.state.vy = 0.0
+                    self.state.on_ground = True
+                else:
+                    # True wall collision — player is beside the block, not above
+                    # Only kill if player overlaps the block vertically
+                    if self.state.y < tile_top:
+                        self.alive = False
+                        self.state.finished = False
+                        return
 
         # 3. Bounding-box overlap for hazards and finish lines
         # Box approx: x to x+0.9, y to y+0.9 to avoid edge clipping
@@ -143,12 +169,74 @@ class Player:
                 if t == TileType.FINISH:
                     self.state.finished = True
                 elif t == TileType.SPIKE:
-                    self.alive = False
-                    self.state.finished = False
+                    # Corner forgiveness: check if player is truly inside
+                    # the shrunken spike hitbox, not just grazing the corner
+                    if self._is_inside_spike_hitbox(c, r):
+                        self.alive = False
+                        self.state.finished = False
 
     # ------------------------------------------------------------------
     # Jump
     # ------------------------------------------------------------------
+
+    def _is_wall_hit_valid(self, wall_row: int) -> bool:
+        """
+        Check if the player truly overlaps the wall's vertical hitbox.
+
+        Corner forgiveness: the player must overlap the wall tile's vertical
+        extent by at least WALL_CORNER_FORGIVENESS to count as a lethal hit.
+        Grazing just the top or bottom corner is forgiven.
+
+        Args:
+            wall_row: Grid row of the wall tile.
+
+        Returns:
+            True if wall collision should kill the player.
+        """
+        # Player vertical bounds (same 0.9 size used elsewhere)
+        py_bot = self.state.y
+        py_top = self.state.y + 0.9
+
+        # Shrunken wall vertical hitbox
+        f = WALL_CORNER_FORGIVENESS
+        wall_bot = wall_row + f
+        wall_top = wall_row + 1.0 - f
+
+        # Check if player overlaps the shrunken vertical zone
+        return py_top > wall_bot and py_bot < wall_top
+
+    def _is_inside_spike_hitbox(self, spike_col: int, spike_row: int) -> bool:
+        """
+        Check if the player's bounding box overlaps the shrunken spike hitbox.
+
+        The spike hitbox is reduced by SPIKE_HITBOX_SHRINK on all sides,
+        providing corner forgiveness — grazing the extreme edges of a spike
+        won't kill the player.
+
+        Args:
+            spike_col: Grid column of the spike tile.
+            spike_row: Grid row of the spike tile.
+
+        Returns:
+            True if player overlaps the shrunken spike zone.
+        """
+        # Player bounding box (same 0.9 size used elsewhere)
+        px_left = self.state.x
+        px_right = self.state.x + 0.9
+        py_bot = self.state.y
+        py_top = self.state.y + 0.9
+
+        # Shrunken spike hitbox
+        s = SPIKE_HITBOX_SHRINK
+        sp_left = spike_col + s
+        sp_right = spike_col + 1.0 - s
+        sp_bot = spike_row + s
+        sp_top = spike_row + 1.0 - s
+
+        # AABB overlap test
+        overlap_x = px_right > sp_left and px_left < sp_right
+        overlap_y = py_top > sp_bot and py_bot < sp_top
+        return overlap_x and overlap_y
 
     def jump(self) -> None:
         """

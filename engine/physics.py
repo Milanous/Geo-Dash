@@ -42,6 +42,23 @@ ROTATION_SPEED_DEG_PER_STEP: float = 1.875
   450 °/s ÷ 240 Hz = 1.875 °/step  (matches official GD cube spin rate).
 """
 
+SPIKE_HITBOX_SHRINK: float = 0.18
+"""Inward margin (in blocks) to shrink spike hitboxes for corner forgiveness.
+
+This makes spike collisions more forgiving when grazing corners — a common
+"feel good" tweak in precision platformers like Geometry Dash.
+~0.18 blocks ≈ 5.4 pixels de tolérance sur les angles.
+"""
+
+WALL_CORNER_FORGIVENESS: float = 0.22
+"""Vertical tolerance (in blocks) for wall collision corner forgiveness.
+
+When the player grazes just the top or bottom corner of a SOLID block,
+this margin prevents an unfair death. The player must overlap the wall's
+vertical hitbox by at least this amount to trigger a kill.
+~0.22 blocks ≈ 6.6 pixels de tolérance sur les angles des murs.
+"""
+
 
 # ---------------------------------------------------------------------------
 # Player state

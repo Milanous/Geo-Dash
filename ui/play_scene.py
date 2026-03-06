@@ -96,6 +96,15 @@ class PlayScene(Scene):
         On death: confetti effect, 2-second pause, then restart.
         On finish: switch to VictoryScene.
         """
+        # Auto-jump (bunny-hop): jump if SPACE is held and player just landed
+        # Guard with try/except for headless tests where video isn't initialized
+        try:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE] and self._player.alive:
+                self._player.jump()
+        except pygame.error:
+            pass  # Video system not initialized (headless tests)
+
         # Update VFX particles even during death (for confetti animation)
         if self._death_timer is not None:
             # Keep updating particles for confetti effect

@@ -63,6 +63,7 @@ class EditorScene(Scene):
             self._editor = Editor.__new__(Editor)
             self._editor._world = world
             self._editor._selected = TileType.SOLID
+            self._editor._erase_mode = False
             self._level_name = load_level_name(level_path)
 
         # Cursor in block coordinates (updated from mouse position)
@@ -220,6 +221,7 @@ class EditorScene(Scene):
             self._cursor_bx,
             self._cursor_by,
             self._editor.selected_tile_type,
+            self._editor.erase_mode,
         )
 
         # Flash "Saved!" label (top-right)
@@ -271,6 +273,7 @@ class EditorScene(Scene):
         solid_rect  = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SOLID_IDX,  screen_h)
         spike_rect  = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SPIKE_IDX,  screen_h)
         finish_rect = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_FINISH_IDX, screen_h)
+        delete_rect = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_DELETE_IDX, screen_h)
         play_rect   = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_PLAY_IDX,   screen_h)
         save_rect   = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SAVE_IDX,   screen_h)
 
@@ -280,6 +283,8 @@ class EditorScene(Scene):
             self._editor.set_selected_tile_type(TileType.SPIKE)
         elif finish_rect.left <= mx <= finish_rect.right:
             self._editor.set_selected_tile_type(TileType.FINISH)
+        elif delete_rect.left <= mx <= delete_rect.right:
+            self._editor.set_erase_mode(True)
         elif play_rect.left <= mx <= play_rect.right:
             self._start_playtest()
         elif save_rect.left <= mx <= save_rect.right:

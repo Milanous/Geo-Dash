@@ -59,8 +59,12 @@ def _btn_rect(idx: int, screen_h: int) -> pygame.Rect:
 _BTN_SOLID_IDX: int = 0
 _BTN_SPIKE_IDX: int = 1
 _BTN_FINISH_IDX: int = 2
-_BTN_PLAY_IDX: int = 3
-_BTN_SAVE_IDX: int = 4
+_BTN_DELETE_IDX: int = 3
+_BTN_PLAY_IDX: int = 4
+_BTN_SAVE_IDX: int = 5
+
+_BTN_DELETE:     tuple[int, int, int] = (180, 60, 60)
+_BTN_DELETE_HOT: tuple[int, int, int] = (220, 80, 80)
 
 
 class EditorRenderer:
@@ -85,6 +89,7 @@ class EditorRenderer:
         cursor_bx: int,
         cursor_by: int,
         selected_tile_type: TileType,
+        erase_mode: bool = False,
     ) -> None:
         """
         Render the full editor frame.
@@ -113,7 +118,7 @@ class EditorRenderer:
         self._draw_cursor(surface, editor_camera, cursor_bx, cursor_by, screen_h)
 
         # 5 — Toolbar
-        self._draw_toolbar(surface, screen_w, screen_h, selected_tile_type)
+        self._draw_toolbar(surface, screen_w, screen_h, selected_tile_type, erase_mode)
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -231,6 +236,7 @@ class EditorRenderer:
         screen_w: int,
         screen_h: int,
         selected_tile_type: TileType,
+        erase_mode: bool = False,
     ) -> None:
         # Toolbar background
         tb_rect = pygame.Rect(0, screen_h - _TOOLBAR_HEIGHT, screen_w, _TOOLBAR_HEIGHT)
@@ -243,24 +249,36 @@ class EditorRenderer:
 
         # SOLID button
         solid_rect = _btn_rect(_BTN_SOLID_IDX, screen_h)
-        solid_color = _BTN_ACTIVE if selected_tile_type is TileType.SOLID else _BTN_INACTIVE
+        solid_color = _BTN_ACTIVE if selected_tile_type is TileType.SOLID and not erase_mode else _BTN_INACTIVE
         pygame.draw.rect(surface, solid_color, solid_rect, border_radius=3)
         lbl = font.render("SOLID", True, _TEXT_COLOR)
         surface.blit(lbl, lbl.get_rect(center=solid_rect.center))
 
         # SPIKE button
         spike_rect = _btn_rect(_BTN_SPIKE_IDX, screen_h)
-        spike_color = _BTN_ACTIVE if selected_tile_type is TileType.SPIKE else _BTN_INACTIVE
+        spike_color = _BTN_ACTIVE if selected_tile_type is TileType.SPIKE and not erase_mode else _BTN_INACTIVE
         pygame.draw.rect(surface, spike_color, spike_rect, border_radius=3)
         lbl = font.render("SPIKE", True, _TEXT_COLOR)
         surface.blit(lbl, lbl.get_rect(center=spike_rect.center))
 
         # FINISH button
         finish_rect = _btn_rect(_BTN_FINISH_IDX, screen_h)
-        finish_color = _BTN_ACTIVE if selected_tile_type is TileType.FINISH else _BTN_INACTIVE
+        finish_color = _BTN_ACTIVE if selected_tile_type is TileType.FINISH and not erase_mode else _BTN_INACTIVE
         pygame.draw.rect(surface, finish_color, finish_rect, border_radius=3)
         lbl = font.render("FINISH", True, _TEXT_COLOR)
         surface.blit(lbl, lbl.get_rect(center=finish_rect.center))
+
+        # DELETE button
+        delete_rect = _btn_rect(_BTN_DELETE_IDX, screen_h)
+        if erase_mode:
+            delete_color = _BTN_ACTIVE
+        elif delete_rect.collidepoint(mx, my):
+            delete_color = _BTN_DELETE_HOT
+        else:
+            delete_color = _BTN_DELETE
+        pygame.draw.rect(surface, delete_color, delete_rect, border_radius=3)
+        lbl = font.render("DELETE", True, _TEXT_COLOR)
+        surface.blit(lbl, lbl.get_rect(center=delete_rect.center))
 
         # PLAY-TEST button
         play_rect = _btn_rect(_BTN_PLAY_IDX, screen_h)
@@ -288,12 +306,13 @@ class EditorRenderer:
 
     @staticmethod
     def toolbar_btn_rect(idx: int, screen_h: int) -> pygame.Rect:
-        """Return the pygame.Rect for toolbar button *idx* (0=SOLID, 1=SPIKE, 2=FINISH, 3=PLAY, 4=SAVE)."""
+        """Return the pygame.Rect for toolbar button *idx* (0=SOLID, 1=SPIKE, 2=FINISH, 3=DELETE, 4=PLAY, 5=SAVE)."""
         return _btn_rect(idx, screen_h)
 
     TOOLBAR_HEIGHT: int = _TOOLBAR_HEIGHT
     BTN_SOLID_IDX:  int = _BTN_SOLID_IDX
     BTN_SPIKE_IDX:  int = _BTN_SPIKE_IDX
     BTN_FINISH_IDX: int = _BTN_FINISH_IDX
+    BTN_DELETE_IDX: int = _BTN_DELETE_IDX
     BTN_PLAY_IDX:   int = _BTN_PLAY_IDX
     BTN_SAVE_IDX:   int = _BTN_SAVE_IDX

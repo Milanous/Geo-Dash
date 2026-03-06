@@ -122,10 +122,16 @@ def test_editor_scene_next_scene_starts_none() -> None:
 # Story 6.5 — SAVE button in toolbar
 # ---------------------------------------------------------------------------
 
-def test_btn_save_idx_exists_and_equals_4() -> None:
+def test_btn_save_idx_exists_and_equals_5() -> None:
     from renderer.editor_renderer import EditorRenderer
     assert hasattr(EditorRenderer, "BTN_SAVE_IDX")
-    assert EditorRenderer.BTN_SAVE_IDX == 4
+    assert EditorRenderer.BTN_SAVE_IDX == 5
+
+
+def test_btn_delete_idx_exists_and_equals_3() -> None:
+    from renderer.editor_renderer import EditorRenderer
+    assert hasattr(EditorRenderer, "BTN_DELETE_IDX")
+    assert EditorRenderer.BTN_DELETE_IDX == 3
 
 
 def test_toolbar_btn_rect_save_returns_valid_rect() -> None:

@@ -290,12 +290,17 @@ def test_player_stops_updating_when_dead() -> None:
 # ---------------------------------------------------------------------------
 
 def test_spike_at_player_grid_cell_kills_in_one_step() -> None:
-    """Player falling one tile above a row of spikes must die in one update."""
+    """Player falling into a row of spikes must die when penetrating the hitbox.
+    
+    With corner forgiveness enabled (SPIKE_HITBOX_SHRINK), the player must
+    actually penetrate into the spike's reduced hitbox to die — grazing the
+    extreme edge is forgiven.
+    """
     world = World(20, 10)
-    # Row 0 = all spikes; player starts at y=1.0 and falls into row 0
+    # Row 0 = all spikes; player starts at y=0.5 (inside spike zone)
     for col in range(20):
         world.set_tile(col, 0, TileType.SPIKE)
-    p = Player(start_x=0.0, start_y=1.0)
+    p = Player(start_x=0.0, start_y=0.5)
     p.update(DT, world)
     assert p.alive is False
 
