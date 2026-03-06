@@ -171,10 +171,9 @@ def test_death_pause_timer() -> None:
     assert ps._death_timer == pytest.approx(2.0 - DT)
 
 
-def test_death_immediate_return_editor() -> None:
-    """With return_scene set, death still returns to editor immediately (no timer)."""
+def test_death_timer_runs_even_with_return_scene() -> None:
+    """With return_scene set, death still triggers the 2-second timer to allow confetti."""
     from ui.scene import Scene
-    import abc
     class DummyScene(Scene):
         def handle_events(self) -> bool: return True
         def update(self, dt: float) -> None: pass
@@ -183,8 +182,9 @@ def test_death_immediate_return_editor() -> None:
     ps = PlayScene(return_scene=editor)
     ps._player.alive = False
     ps.update(DT)
-    assert ps.next_scene is editor
-    assert ps._death_timer is None
+    # Death timer should start, we should NOT immediately return
+    assert ps.next_scene is None
+    assert ps._death_timer == pytest.approx(2.0)
 
 
 # ---------------------------------------------------------------------------

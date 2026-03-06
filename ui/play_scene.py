@@ -93,8 +93,7 @@ class PlayScene(Scene):
         Advance physics by one timestep.
 
         Death takes priority over victory.
-        On death (no return_scene): confetti effect, 2-second pause, then restart.
-        On death (with return_scene): immediate return to editor.
+        On death: confetti effect, 2-second pause, then restart.
         On finish: switch to VictoryScene.
         """
         # Update VFX particles even during death (for confetti animation)
@@ -112,9 +111,6 @@ class PlayScene(Scene):
 
         # Death check — priority over victory
         if not self._player.alive:
-            if self._return_scene is not None:
-                self.next_scene = self._return_scene
-                return
             # Spawn confetti at player's death position
             self._vfx.spawn_death_confetti(self._player.state.x, self._player.state.y)
             self._death_timer = 2.0
