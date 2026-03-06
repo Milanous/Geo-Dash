@@ -85,7 +85,7 @@ class GameRenderer:
         self,
         surface: pygame.Surface,
         world: World,
-        player: Player,
+        player: Player | None,
         camera: Camera,
     ) -> None:
         """
@@ -94,12 +94,13 @@ class GameRenderer:
         Args:
             surface: Destination pygame surface (typically the display).
             world:   Current level grid (block coordinates).
-            player:  Current player with PlayerState.
+            player:  Current player with PlayerState, or None to hide.
             camera:  Camera holding x_offset (pixels).
         """
         self._draw_sky(surface)
         self._draw_tiles(surface, world, camera)
-        self._draw_player(surface, player, camera)
+        if player is not None:
+            self._draw_player(surface, player, camera)
 
     # ------------------------------------------------------------------
     # Private helpers

@@ -38,11 +38,11 @@ def test_dt_derived_from_physics_rate() -> None:
 
 
 def test_gravity() -> None:
-    assert GRAVITY == -0.958
+    assert GRAVITY == pytest.approx(-114.96)
 
 
 def test_jump_velocity() -> None:
-    assert JUMP_VELOCITY == 12.36
+    assert JUMP_VELOCITY == pytest.approx(24.72)
 
 
 def test_player_speed() -> None:
@@ -126,21 +126,21 @@ def test_player_x_cumulative_after_n_steps() -> None:
 
 
 def test_player_vy_decreases_by_gravity_per_step() -> None:
-    """AC: vy += GRAVITY each step (no dt scaling on gravity)."""
+    """AC: vy += GRAVITY * DT each step (dt-scaled gravity)."""
     p = Player(start_x=0.0, start_y=100.0)
     p.update(DT)
-    # vy = 0 + GRAVITY (initial vy=0 from PlayerState, start on_ground False so no jump)
+    # vy = 0 + GRAVITY * DT (initial vy=0 from PlayerState, start on_ground False so no jump)
     # Note: PlayerState default on_ground=True, but here start_y=100 and no floor so
     # on_ground becomes False after first update (no collision => on_ground=False)
-    assert p.state.vy == pytest.approx(GRAVITY)
+    assert p.state.vy == pytest.approx(GRAVITY * DT)
 
 
 def test_player_vy_accumulates_over_steps() -> None:
-    """vy keeps accumulating GRAVITY each step with no floor."""
+    """vy keeps accumulating GRAVITY * DT each step with no floor."""
     p = Player(start_x=0.0, start_y=100.0)
     for _ in range(5):
         p.update(DT)
-    assert p.state.vy == pytest.approx(GRAVITY * 5)
+    assert p.state.vy == pytest.approx(GRAVITY * DT * 5)
 
 
 def test_player_y_falls_without_floor() -> None:

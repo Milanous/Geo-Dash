@@ -62,8 +62,8 @@ class Player:
         # 1. Horizontal auto-scroll (AC Story 1.5: x += PLAYER_SPEED * dt)
         self.state.x += PLAYER_SPEED * dt
 
-        # 2. Gravity applied per step, no dt scaling (AC Story 1.5)
-        self.state.vy += GRAVITY
+        # 2. Gravity (dt-scaled, blocks/s²)
+        self.state.vy += GRAVITY * dt
 
         # 3. Vertical position update
         self.state.y += self.state.vy * dt
@@ -120,7 +120,19 @@ class Player:
             self.state.vy = 0.0
             self.state.on_ground = True
 
-        # 2. Bounding-box overlap for hazards and finish lines
+        # 2. Wall collision (front-face / right-side check)
+        # After floor resolution, check if the player's right edge overlaps
+        # a SOLID tile at the player's body height.
+        wall_col = int(self.state.x + 0.9)
+        for wall_row in (int(self.state.y), int(self.state.y + 0.9)):
+            if world.tile_at(wall_col, wall_row) == TileType.SOLID:
+                # Not a wall hit if the player is standing on top of that tile
+                if self.state.y < float(wall_row + 1):
+                    self.alive = False
+                    self.state.finished = False
+                    return
+
+        # 3. Bounding-box overlap for hazards and finish lines
         # Box approx: x to x+0.9, y to y+0.9 to avoid edge clipping
         left, right = int(self.state.x), int(self.state.x + 0.9)
         bot, top = int(self.state.y), int(self.state.y + 0.9)
@@ -132,6 +144,7 @@ class Player:
                     self.state.finished = True
                 elif t == TileType.SPIKE:
                     self.alive = False
+                    self.state.finished = False
 
     # ------------------------------------------------------------------
     # Jump

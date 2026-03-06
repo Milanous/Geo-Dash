@@ -109,7 +109,7 @@ def test_play_scene_player_lands_and_stays_on_ground() -> None:
     for _ in range(500):
         ps.update(DT)
     assert ps._player.state.on_ground is True
-    assert ps._player.state.y == pytest.approx(0.0, abs=1e-9)
+    assert ps._player.state.y == pytest.approx(1.0, abs=1e-9)
 
 
 def test_play_scene_camera_offset_nonzero_after_run() -> None:
@@ -122,14 +122,69 @@ def test_play_scene_camera_offset_nonzero_after_run() -> None:
 
 
 def test_play_scene_player_respawns_after_death() -> None:
-    """If player.alive becomes False, next update() resets the player."""
+    """If player.alive becomes False, player resets after the 2-second death timer."""
     ps = PlayScene()
     ps._player.alive = False
     ps.update(DT)
-    # After reset, a fresh player should be alive; x is at start + one physics step
+    # Death timer is now active — player should NOT be reset yet
+    assert ps._death_timer is not None
+    assert ps._death_timer > 0
+    # Simulate enough time to expire the 2-second timer
+    remaining = ps._death_timer
+    steps = int(remaining / DT) + 1
+    for _ in range(steps):
+        ps.update(DT)
+    # After timer expiry, a fresh player should be alive
     assert ps._player.alive is True
-    # x == _START_X + PLAYER_SPEED * DT (reset happens, then one step runs)
-    assert ps._player.state.x == pytest.approx(5.0 + PLAYER_SPEED * DT)
+    assert ps._death_timer is None
+
+
+# ---------------------------------------------------------------------------
+# Story 2.8 — Death Handling Priority & Restart Pause
+# ---------------------------------------------------------------------------
+
+def test_death_priority_over_victory() -> None:
+    """Dead player with finished=True → no VictoryScene, death takes priority."""
+    ps = PlayScene()
+    ps._player.alive = False
+    ps._player.state.finished = True
+    ps.update(DT)
+    # Should NOT switch to VictoryScene
+    from ui.victory_scene import VictoryScene
+    assert not isinstance(ps.next_scene, VictoryScene)
+    # Death timer should have started
+    assert ps._death_timer is not None
+
+
+def test_death_pause_timer() -> None:
+    """After death, player is not reset until 2-second timer expires."""
+    ps = PlayScene()
+    ps._player.alive = False
+    ps.update(DT)
+    # Timer started
+    assert ps._death_timer is not None
+    assert ps._death_timer == pytest.approx(2.0)
+    # Player is still dead — not recreated
+    old_player = ps._player
+    ps.update(DT)
+    assert ps._player is old_player  # same dead player object
+    assert ps._death_timer == pytest.approx(2.0 - DT)
+
+
+def test_death_immediate_return_editor() -> None:
+    """With return_scene set, death still returns to editor immediately (no timer)."""
+    from ui.scene import Scene
+    import abc
+    class DummyScene(Scene):
+        def handle_events(self) -> bool: return True
+        def update(self, dt: float) -> None: pass
+        def draw(self, surface) -> None: pass
+    editor = DummyScene()
+    ps = PlayScene(return_scene=editor)
+    ps._player.alive = False
+    ps.update(DT)
+    assert ps.next_scene is editor
+    assert ps._death_timer is None
 
 
 # ---------------------------------------------------------------------------

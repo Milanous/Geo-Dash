@@ -40,6 +40,7 @@ class EditorScene(Scene):
       SOLID button  → select SOLID tile type
       SPIKE button  → select SPIKE tile type
       PLAY [P] btn  → same as P key
+      SAVE [S] btn  → same as S key (shift+click → save-as)
     """
 
     def __init__(
@@ -271,6 +272,7 @@ class EditorScene(Scene):
         spike_rect  = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SPIKE_IDX,  screen_h)
         finish_rect = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_FINISH_IDX, screen_h)
         play_rect   = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_PLAY_IDX,   screen_h)
+        save_rect   = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SAVE_IDX,   screen_h)
 
         if solid_rect.left <= mx <= solid_rect.right:
             self._editor.set_selected_tile_type(TileType.SOLID)
@@ -280,3 +282,13 @@ class EditorScene(Scene):
             self._editor.set_selected_tile_type(TileType.FINISH)
         elif play_rect.left <= mx <= play_rect.right:
             self._start_playtest()
+        elif save_rect.left <= mx <= save_rect.right:
+            mods = pygame.key.get_mods()
+            if mods & pygame.KMOD_SHIFT:
+                self._save_dialog = SaveDialog(
+                    initial_text=self._level_name or ""
+                )
+            elif self._level_name is None:
+                self._save_dialog = SaveDialog()
+            else:
+                self._do_save()

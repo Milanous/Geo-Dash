@@ -182,15 +182,15 @@ def _make_floor_world(width: int = 20, height: int = 10) -> World:
 
 
 def test_player_lands_on_solid_floor_tiles() -> None:
-    """AC-1: Fall onto SOLID tiles at y=0 → y=0, vy=0, on_ground=True."""
+    """AC-1: Fall onto SOLID tiles at y=0 → land on top at y=1, vy=0, on_ground=True."""
     world = _make_floor_world()
     p = Player(start_x=5.0, start_y=3.0)
-    # Simulate enough steps for the player to fall to y=0
+    # Simulate enough steps for the player to land on top of row-0 tiles
     for _ in range(500):
         p.update(DT, world)
         if p.state.on_ground:
             break
-    assert p.state.y == pytest.approx(0.0, abs=1e-9)
+    assert p.state.y == pytest.approx(1.0, abs=1e-9)
     assert p.state.vy == pytest.approx(0.0)
     assert p.state.on_ground is True
 
@@ -311,3 +311,79 @@ def test_spike_collision_does_not_snap_player_y() -> None:
     assert p.alive is False
     # SOLID snap would have set y=1.0 exactly; SPIKE must leave y unchanged
     assert p.state.y != 1.0
+
+
+# ---------------------------------------------------------------------------
+# Story 2.7 — Wall Collision (front-face death)
+# ---------------------------------------------------------------------------
+
+def test_player_wall_collision_kills() -> None:
+    """Player on ground walks into a SOLID wall → dies."""
+    world = World(30, 10)
+    # Floor at row 0
+    for col in range(30):
+        world.set_tile(col, 0, TileType.SOLID)
+    # Wall at col=10, rows 1 and 2
+    world.set_tile(10, 1, TileType.SOLID)
+    world.set_tile(10, 2, TileType.SOLID)
+    # Player on ground (y=1.0), moving right towards wall
+    p = Player(start_x=5.0, start_y=1.0)
+    p.state.on_ground = True
+    for _ in range(5000):
+        p.update(DT, world)
+        if not p.alive:
+            break
+    assert p.alive is False
+
+
+def test_player_wall_collision_in_air_kills() -> None:
+    """Player in air hits a SOLID wall → dies."""
+    world = World(30, 10)
+    # Floor at row 0
+    for col in range(30):
+        world.set_tile(col, 0, TileType.SOLID)
+    # Wall at col=10, rows 1-4 (tall wall)
+    for r in range(1, 5):
+        world.set_tile(10, r, TileType.SOLID)
+    p = Player(start_x=5.0, start_y=1.0)
+    p.state.on_ground = True
+    p.jump()  # jump, but wall is tall enough
+    for _ in range(5000):
+        p.update(DT, world)
+        if not p.alive:
+            break
+    assert p.alive is False
+
+
+def test_player_landing_on_top_does_not_kill() -> None:
+    """Player lands on top of a SOLID block → alive, on_ground (regression)."""
+    world = World(30, 10)
+    # Floor at row 0
+    for col in range(30):
+        world.set_tile(col, 0, TileType.SOLID)
+    # Single block at col=10, row=1 — player can jump on top
+    world.set_tile(10, 1, TileType.SOLID)
+    # Place player already on top of the block
+    p = Player(start_x=10.0, start_y=2.0)
+    p.state.on_ground = True
+    p.state.vy = 0.0
+    p.update(DT, world)
+    assert p.alive is True
+
+
+def test_wall_collision_no_pygame_dependency() -> None:
+    """Wall collision works headlessly — no pygame import in engine layer."""
+    import engine.player as pm
+    assert not hasattr(pm, "pygame"), "engine.player must not import pygame"
+    # Also verify wall kill works without any pygame call
+    world = World(20, 10)
+    for col in range(20):
+        world.set_tile(col, 0, TileType.SOLID)
+    world.set_tile(10, 1, TileType.SOLID)
+    p = Player(start_x=8.0, start_y=1.0)
+    p.state.on_ground = True
+    for _ in range(5000):
+        p.update(DT, world)
+        if not p.alive:
+            break
+    assert p.alive is False

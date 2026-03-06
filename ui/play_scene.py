@@ -61,6 +61,7 @@ class PlayScene(Scene):
         self._vfx: VFXSystem = VFXSystem()
         self._return_scene: Scene | None = return_scene
         self._level_name: str = level_name
+        self._death_timer: float | None = None
 
     # ------------------------------------------------------------------
     # Scene interface
@@ -91,10 +92,28 @@ class PlayScene(Scene):
         """
         Advance physics by one timestep.
 
-        If the player is dead and return_scene is set, switch back to editor.
-        Otherwise reset to starting position.
-        If the player finished the level, switch to VictoryScene.
+        Death takes priority over victory.
+        On death (no return_scene): 2-second pause, then restart.
+        On death (with return_scene): immediate return to editor.
+        On finish: switch to VictoryScene.
         """
+        # Death timer countdown (human play, no return_scene)
+        if self._death_timer is not None:
+            self._death_timer -= dt
+            if self._death_timer <= 0:
+                self._player = Player(start_x=_START_X, start_y=_START_Y)
+                self._vfx.reset()
+                self._death_timer = None
+            return
+
+        # Death check — priority over victory
+        if not self._player.alive:
+            if self._return_scene is not None:
+                self.next_scene = self._return_scene
+                return
+            self._death_timer = 2.0
+            return
+
         if self._player.state.finished:
             from ui.victory_scene import VictoryScene  # local import to avoid cycle
 
@@ -105,18 +124,12 @@ class PlayScene(Scene):
             )
             return
 
-        if not self._player.alive:
-            if self._return_scene is not None:
-                self.next_scene = self._return_scene
-                return
-            self._player = Player(start_x=_START_X, start_y=_START_Y)
-            self._vfx.reset()
-
         self._player.update(dt, self._world)
         self._camera.follow(self._player.state.x)
         self._vfx.update(self._player.state, dt)
 
     def draw(self, surface: pygame.Surface) -> None:
         """Render the current frame onto *surface*."""
-        self._renderer.draw(surface, self._world, self._player, self._camera)
+        player_to_draw = None if self._death_timer is not None else self._player
+        self._renderer.draw(surface, self._world, player_to_draw, self._camera)
         self._vfx.draw(surface, self._camera.x_offset)

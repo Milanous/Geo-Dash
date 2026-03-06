@@ -116,3 +116,66 @@ def test_editor_scene_initial_selected_tile_is_solid() -> None:
 def test_editor_scene_next_scene_starts_none() -> None:
     scene = EditorScene()
     assert scene.next_scene is None
+
+
+# ---------------------------------------------------------------------------
+# Story 6.5 — SAVE button in toolbar
+# ---------------------------------------------------------------------------
+
+def test_btn_save_idx_exists_and_equals_4() -> None:
+    from renderer.editor_renderer import EditorRenderer
+    assert hasattr(EditorRenderer, "BTN_SAVE_IDX")
+    assert EditorRenderer.BTN_SAVE_IDX == 4
+
+
+def test_toolbar_btn_rect_save_returns_valid_rect() -> None:
+    import pygame
+    from renderer.editor_renderer import EditorRenderer
+    rect = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SAVE_IDX, 600)
+    assert isinstance(rect, pygame.Rect)
+    assert rect.width > 0 and rect.height > 0
+def test_save_button_hit_test_triggers_save_logic(monkeypatch) -> None:
+    """AC8: Verify clicking the SAVE button rect triggers the save logic."""
+    import pygame
+    from renderer.editor_renderer import EditorRenderer
+    from ui.editor_scene import EditorScene
+
+    scene = EditorScene()
+    
+    # Mock _do_save to verify it gets called
+    did_call_save = False
+    def mock_do_save():
+        nonlocal did_call_save
+        did_call_save = True
+    
+    monkeypatch.setattr(scene, "_do_save", mock_do_save)
+    
+    # Needs a level name so it calls _do_save instead of opening SaveDialog
+    scene._level_name = "test_level"
+
+    # Get the SAVE button rect
+    screen_h = 600
+    save_rect = EditorRenderer.toolbar_btn_rect(EditorRenderer.BTN_SAVE_IDX, screen_h)
+    
+    # Click exactly in the middle of the save button
+    mx = save_rect.centerx
+    my = save_rect.centery
+    
+    # Setup mock event
+    class MockEvent:
+        def __init__(self, pos):
+            self.type = pygame.MOUSEBUTTONDOWN
+            self.button = 1
+            self.pos = pos
+            self.buttons = (1, 0, 0)
+    
+    mock_event = MockEvent((mx, my))
+    
+    # The actual handle_events logic pulls from pygame.event.get() and pygame.key.get_mods()
+    monkeypatch.setattr(pygame.event, "get", lambda: [mock_event])
+    monkeypatch.setattr(pygame.key, "get_mods", lambda: 0)
+    
+    # Trigger event handling
+    scene.handle_events()
+    
+    assert did_call_save is True

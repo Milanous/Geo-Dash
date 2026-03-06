@@ -18,11 +18,17 @@ PHYSICS_RATE: int = 240
 DT: float = 1.0 / PHYSICS_RATE
 """Physics timestep in seconds per frame (≈ 0.004167 s)."""
 
-GRAVITY: float = -0.958
-"""Vertical acceleration in blocks/frame (negative = downward)."""
+GRAVITY: float = -114.96
+"""Vertical acceleration in blocks/s² (negative = downward).
 
-JUMP_VELOCITY: float = 12.36
-"""Initial vertical velocity on jump, in blocks/frame."""
+Derived from GD pixel physics: 0.958 px/frame² × 60² fps² ÷ 30 px/block.
+"""
+
+JUMP_VELOCITY: float = 24.72
+"""Initial vertical velocity on jump, in blocks/s.
+
+Derived from GD pixel physics: 12.36 px/frame × 60 fps ÷ 30 px/block.
+"""
 
 PLAYER_SPEED: float = 10.3761348998
 """Horizontal auto-scroll speed in blocks/second."""

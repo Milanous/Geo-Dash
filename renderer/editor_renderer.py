@@ -33,6 +33,8 @@ _BTN_INACTIVE:   tuple[int, int, int] = (60, 60, 60)
 _BTN_ACTIVE:     tuple[int, int, int] = (100, 180, 100)
 _BTN_PLAY:       tuple[int, int, int] = (60, 120, 200)
 _BTN_PLAY_HOT:   tuple[int, int, int] = (80, 160, 255)
+_BTN_SAVE:       tuple[int, int, int] = (200, 140, 40)
+_BTN_SAVE_HOT:   tuple[int, int, int] = (240, 180, 60)
 _TEXT_COLOR:     tuple[int, int, int] = (230, 230, 230)
 
 # ---------------------------------------------------------------------------
@@ -58,6 +60,7 @@ _BTN_SOLID_IDX: int = 0
 _BTN_SPIKE_IDX: int = 1
 _BTN_FINISH_IDX: int = 2
 _BTN_PLAY_IDX: int = 3
+_BTN_SAVE_IDX: int = 4
 
 
 class EditorRenderer:
@@ -235,6 +238,9 @@ class EditorRenderer:
 
         font = self._get_font()
 
+        # Mouse position for hover states
+        mx, my = pygame.mouse.get_pos()
+
         # SOLID button
         solid_rect = _btn_rect(_BTN_SOLID_IDX, screen_h)
         solid_color = _BTN_ACTIVE if selected_tile_type is TileType.SOLID else _BTN_INACTIVE
@@ -258,9 +264,17 @@ class EditorRenderer:
 
         # PLAY-TEST button
         play_rect = _btn_rect(_BTN_PLAY_IDX, screen_h)
-        pygame.draw.rect(surface, _BTN_PLAY, play_rect, border_radius=3)
+        play_color = _BTN_PLAY_HOT if play_rect.collidepoint(mx, my) else _BTN_PLAY
+        pygame.draw.rect(surface, play_color, play_rect, border_radius=3)
         lbl = font.render("PLAY [P]", True, _TEXT_COLOR)
         surface.blit(lbl, lbl.get_rect(center=play_rect.center))
+
+        # SAVE button
+        save_rect = _btn_rect(_BTN_SAVE_IDX, screen_h)
+        save_color = _BTN_SAVE_HOT if save_rect.collidepoint(mx, my) else _BTN_SAVE
+        pygame.draw.rect(surface, save_color, save_rect, border_radius=3)
+        lbl = font.render("SAVE [S]", True, _TEXT_COLOR)
+        surface.blit(lbl, lbl.get_rect(center=save_rect.center))
 
     def _get_font(self) -> pygame.font.Font:
         """Lazy-load a small system font."""
@@ -274,7 +288,7 @@ class EditorRenderer:
 
     @staticmethod
     def toolbar_btn_rect(idx: int, screen_h: int) -> pygame.Rect:
-        """Return the pygame.Rect for toolbar button *idx* (0=SOLID, 1=SPIKE, 2=FINISH, 3=PLAY)."""
+        """Return the pygame.Rect for toolbar button *idx* (0=SOLID, 1=SPIKE, 2=FINISH, 3=PLAY, 4=SAVE)."""
         return _btn_rect(idx, screen_h)
 
     TOOLBAR_HEIGHT: int = _TOOLBAR_HEIGHT
@@ -282,3 +296,4 @@ class EditorRenderer:
     BTN_SPIKE_IDX:  int = _BTN_SPIKE_IDX
     BTN_FINISH_IDX: int = _BTN_FINISH_IDX
     BTN_PLAY_IDX:   int = _BTN_PLAY_IDX
+    BTN_SAVE_IDX:   int = _BTN_SAVE_IDX
