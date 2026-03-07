@@ -61,6 +61,11 @@ _DEFAULT_BRAINS_DIR: str = "data/brains"
 class ReplayScene(Scene):
     """Best-agent replay: generation selector + single-brain simulation."""
 
+    # Pause button layout (top-right corner)
+    _PAUSE_BTN_W: int = 90
+    _PAUSE_BTN_H: int = 32
+    _PAUSE_BTN_MARGIN: int = 10
+
     def __init__(
         self,
         world: World,
@@ -85,6 +90,9 @@ class ReplayScene(Scene):
 
         # Jump glow timer
         self._glow_timer: float = 0.0
+
+        # Pause state
+        self._paused: bool = False
 
         # Lazy fonts
         self._font: pygame.font.Font | None = None
@@ -145,6 +153,9 @@ class ReplayScene(Scene):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    if self._paused:
+                        self._paused = False
+                        continue
                     if self._brain is not None:
                         # If replaying → back to gen selector
                         self._brain = None
@@ -152,6 +163,7 @@ class ReplayScene(Scene):
                         self._camera = None
                         self._renderer = None
                         self._current_gen = None
+                        self._paused = False
                         return True
                     # If on selector → return to caller
                     if self._return_scene is not None:
@@ -159,7 +171,12 @@ class ReplayScene(Scene):
                         return True
                     return False
 
+                if event.key == pygame.K_p and self._brain is not None:
+                    self._paused = not self._paused
+                    continue
+
                 if event.key == pygame.K_r and self._current_gen is not None:
+                    self._paused = False
                     self._load_gen(self._current_gen)
                     return True
 
@@ -175,10 +192,17 @@ class ReplayScene(Scene):
                     elif event.key == pygame.K_RETURN and self._generations:
                         self._load_gen(self._generations[self._selected_idx])
 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self._brain is not None and self._pause_btn_rect_hit(event.pos):
+                    self._paused = not self._paused
+
         return True
 
     def update(self, dt: float) -> None:
         if self._brain is None or self._player is None or self._camera is None:
+            return
+
+        if self._paused:
             return
 
         if not self._player.alive or self._player.state.finished:
@@ -298,10 +322,67 @@ class ReplayScene(Scene):
         if self._hint_font is None:
             self._hint_font = pygame.font.Font(None, T.FONT_HINT)
         hint = self._hint_font.render(
-            f"Gen {self._current_gen}  |  [R] Restart  [ESC] Retour",
+            f"Gen {self._current_gen}  |  [R] Restart  [P] Pause  [ESC] Retour",
             True, T.TEXT_DIM,
         )
         surface.blit(hint, (10, 10))
+
+        # Pause button + overlay
+        self._draw_pause_button(surface)
+        if self._paused:
+            self._draw_pause_overlay(surface)
+
+    # ------------------------------------------------------------------
+    # Pause UI
+    # ------------------------------------------------------------------
+
+    def _pause_btn_rect(self, surface: pygame.Surface) -> pygame.Rect:
+        sw = surface.get_width()
+        return pygame.Rect(
+            sw - self._PAUSE_BTN_W - self._PAUSE_BTN_MARGIN,
+            self._PAUSE_BTN_MARGIN,
+            self._PAUSE_BTN_W,
+            self._PAUSE_BTN_H,
+        )
+
+    def _pause_btn_rect_hit(self, pos: tuple[int, int]) -> bool:
+        try:
+            surface = pygame.display.get_surface()
+            if surface is None:
+                return False
+            return self._pause_btn_rect(surface).collidepoint(pos)
+        except pygame.error:
+            return False
+
+    def _draw_pause_button(self, surface: pygame.Surface) -> None:
+        rect = self._pause_btn_rect(surface)
+        label = "\u25b6 Play" if self._paused else "\u275a\u275a Pause"
+        bg = T.BTN_PRI if not self._paused else T.GREEN
+
+        pygame.draw.rect(surface, bg, rect, border_radius=T.RADIUS_SM)
+        pygame.draw.rect(surface, T.BORDER_HI, rect, width=1, border_radius=T.RADIUS_SM)
+
+        font = pygame.font.Font(None, T.FONT_HINT)
+        txt = font.render(label, True, T.TEXT_TITLE)
+        surface.blit(txt, (
+            rect.x + (rect.width - txt.get_width()) // 2,
+            rect.y + (rect.height - txt.get_height()) // 2,
+        ))
+
+    def _draw_pause_overlay(self, surface: pygame.Surface) -> None:
+        sw, sh = surface.get_size()
+
+        overlay = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 120))
+        surface.blit(overlay, (0, 0))
+
+        big_font = pygame.font.Font(None, 64)
+        txt = big_font.render("PAUSE", True, T.PURPLE)
+        surface.blit(txt, (sw // 2 - txt.get_width() // 2, sh // 2 - txt.get_height() // 2 - 20))
+
+        hint_font = pygame.font.Font(None, T.FONT_SMALL)
+        hint = hint_font.render("[P] Reprendre  |  [ESC] Retour", True, T.TEXT_SEC)
+        surface.blit(hint, (sw // 2 - hint.get_width() // 2, sh // 2 + 30))
 
     def _draw_bounds_frame(self, surface: pygame.Surface) -> None:
         """Draw the allowed neuron placement zone as a thin rectangle."""
