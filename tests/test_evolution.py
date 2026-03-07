@@ -578,7 +578,8 @@ class TestAITrainSceneEarlyStop:
 
         # Force one agent to win
         scene._sim.max_x[0] = 11.0
-        
+        scene._sim.finished[0] = True
+
         # Trigger generation end
         scene._step_count = scene._max_steps_per_gen
         scene.update(DT)

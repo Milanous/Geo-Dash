@@ -255,6 +255,8 @@ class AITrainScene(Scene):
 
     def _generation_done(self) -> bool:
         """Check if the current generation simulation is complete."""
+        if np.any(self._sim.finished):
+            return True
         if np.all(~self._sim.alive):
             return True
         if self._step_count >= self._max_steps_per_gen:
@@ -272,8 +274,8 @@ class AITrainScene(Scene):
         best_fitness = float(fitness[best_idx])
         self._save_best_brain(best_brain, best_fitness)
 
-        # Early stop check
-        if np.any(fitness >= float(self.level.width)):
+        # Early stop check — an agent reached the finish
+        if np.any(self._sim.finished):
             self.finished = True
             self.early_stopped = True
             self.status_msg = "Level Completed!"
