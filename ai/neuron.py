@@ -11,6 +11,17 @@ from dataclasses import dataclass
 
 from engine.world import TileType, World
 
+# ── Neuron placement bounds (in blocks, relative to player) ───────
+DX_MIN: float = -1.0   # max 1 block behind
+DX_MAX: float = 9.0    # up to 9 blocks ahead
+DY_MIN: float = -3.0   # 3 blocks below
+DY_MAX: float = 5.0    # 5 blocks above
+
+
+def clamp_neuron(dx: float, dy: float) -> tuple[float, float]:
+    """Clamp dx/dy to the allowed neuron zone."""
+    return max(DX_MIN, min(DX_MAX, dx)), max(DY_MIN, min(DY_MAX, dy))
+
 
 @dataclass
 class Neuron:

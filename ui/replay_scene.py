@@ -16,6 +16,7 @@ from pathlib import Path
 import pygame
 
 from ai.brain import Brain
+from ai.neuron import DX_MIN, DX_MAX, DY_MIN, DY_MAX
 from engine.camera import Camera
 from engine.player import Player
 from engine.world import TileType, World
@@ -60,6 +61,8 @@ _NETWORK_LINE_WIDTH: int = 1
 _JUMP_GLOW_COLOR = (255, 255, 100)
 _JUMP_GLOW_RADIUS: int = 20
 _JUMP_GLOW_DURATION: float = 0.1
+_BOUNDS_COLOR = (120, 120, 140)
+_BOUNDS_LINE_WIDTH: int = 1
 
 _GEN_PATTERN = re.compile(r"^gen_(\d+)_best\.json$")
 
@@ -337,7 +340,8 @@ class ReplayScene(Scene):
 
         self._renderer.draw(surface, self._world, self._player, self._camera)
 
-        # Debug overlay: neuron dots + jump glow
+        # Debug overlay: bounds frame + neuron dots + jump glow
+        self._draw_bounds_frame(surface)
         self._draw_neuron_overlay(surface)
 
         # HUD hint
@@ -348,6 +352,23 @@ class ReplayScene(Scene):
             True, _HINT_COLOR,
         )
         surface.blit(hint, (10, 10))
+
+    def _draw_bounds_frame(self, surface: pygame.Surface) -> None:
+        """Draw the allowed neuron placement zone as a thin rectangle."""
+        assert self._player is not None
+        assert self._camera is not None
+
+        screen_h = surface.get_height()
+        px = self._player.state.x
+        py = self._player.state.y
+
+        left = int(World.to_px(px + DX_MIN) - self._camera.x_offset)
+        right = int(World.to_px(px + DX_MAX) - self._camera.x_offset)
+        top = int(screen_h - World.to_px(py + DY_MAX))
+        bottom = int(screen_h - World.to_px(py + DY_MIN))
+
+        rect = pygame.Rect(left, top, right - left, bottom - top)
+        pygame.draw.rect(surface, _BOUNDS_COLOR, rect, _BOUNDS_LINE_WIDTH)
 
     def _draw_neuron_overlay(self, surface: pygame.Surface) -> None:
         assert self._player is not None

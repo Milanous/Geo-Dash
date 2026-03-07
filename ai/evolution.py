@@ -14,7 +14,7 @@ import numpy as np
 
 from ai.brain import Brain
 from ai.network import Network
-from ai.neuron import Neuron
+from ai.neuron import Neuron, clamp_neuron, DX_MIN, DX_MAX, DY_MIN, DY_MAX
 from ai.training_config import TrainingConfig
 from engine.world import TileType
 
@@ -54,6 +54,7 @@ def _mutate_move(brain: Brain, config: TrainingConfig) -> None:
     for neuron in chosen:
         neuron.dx += np.random.normal(0, config.mutation_sigma)
         neuron.dy += np.random.normal(0, config.mutation_sigma)
+        neuron.dx, neuron.dy = clamp_neuron(neuron.dx, neuron.dy)
 
 
 def _mutate_neuron(brain: Brain) -> None:
@@ -77,8 +78,8 @@ def _mutate_network(brain: Brain) -> None:
 
 def _random_neuron() -> Neuron:
     return Neuron(
-        dx=random.uniform(-3.0, 3.0),
-        dy=random.uniform(-3.0, 3.0),
+        dx=random.uniform(DX_MIN, DX_MAX),
+        dy=random.uniform(DY_MIN, DY_MAX),
         type=random.choice([TileType.SOLID, TileType.SPIKE]),
         polarity=random.choice(["green", "red"]),
     )
