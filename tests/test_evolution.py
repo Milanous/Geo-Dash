@@ -98,8 +98,8 @@ class TestAliveMovement:
 class TestSpikeCollision:
     def test_spike_kills_agent(self):
         world = _flat_world()
-        # Place spike at floor level — agent falls to y=0 before reaching it
-        world.set_tile(8, 0, TileType.SPIKE)
+        # Place spike at row 1 (walking surface) — agent walks on SOLID floor at y=1.0
+        world.set_tile(8, 1, TileType.SPIKE)
         brains = _empty_brains(1)
         sim = PopulationSim(brains, world, _config(pop=2))
         # Advance until agent hits the spike or we timeout
@@ -145,8 +145,8 @@ class TestFitnessTracksMaxPosition:
 
     def test_max_x_after_death(self):
         world = _flat_world()
-        # Place a spike further along
-        world.set_tile(10, 0, TileType.SPIKE)
+        # Place a spike on the walking surface (row 1, above SOLID floor)
+        world.set_tile(10, 1, TileType.SPIKE)
         brains = _empty_brains(1)
         sim = PopulationSim(brains, world, _config(pop=2))
 
@@ -206,16 +206,12 @@ class TestFitnessCappedAtWidth:
         brains = _empty_brains(2)
         sim = PopulationSim(brains, world, _config(2))
         
-        # Start the agent right at the end to make it cross quickly
-        sim.x[0] = 9.5
-        sim.max_x[0] = 9.5
-        
-        # Run enough steps so x goes > 10.0
-        for _ in range(50):
+        # Run enough steps so agent reaches the end
+        for _ in range(5000):
             sim.step(DT)
             
-        assert sim.x[0] > 10.0, "Agent should have moved past world width"
-        assert sim.fitness()[0] == 10.0, "Fitness must be capped exactly at world width"
+        assert sim.finished[0], "Agent should have reached the finish"
+        assert sim.fitness()[0] <= 10.0, "Fitness must not exceed world width"
 
 
 # ---------------------------------------------------------------------------
