@@ -56,9 +56,8 @@ class PopulationSim:
         self.x[mask] += PLAYER_SPEED * dt
 
         # Floor clamp
-        below = self.y < 0.0
-        self.y[below] = 0.0
-        self.vy[below] = 0.0
+        self.y = np.maximum(self.y, 0.0)
+        np.putmask(self.vy, self.y == 0.0, 0.0)
 
         # Spike collision
         self._resolve_spikes()
