@@ -44,6 +44,19 @@ _START_Y: float = 5.0
 _NEURON_RADIUS: int = 4
 _NEURON_GREEN = (0, 255, 0)
 _NEURON_RED = (255, 0, 0)
+_HUB_RADIUS: int = 7
+_HUB_GLOW_RADIUS: int = 14
+_HUB_OFF_COLOR = (80, 80, 80)
+_NETWORK_COLORS = [
+    (0, 201, 255),    # Cyan
+    (255, 160, 0),    # Orange
+    (200, 80, 255),   # Purple
+    (255, 255, 0),    # Yellow
+    (0, 255, 180),    # Teal
+    (255, 80, 120),   # Pink
+]
+_NETWORK_LINE_ALPHA: int = 80
+_NETWORK_LINE_WIDTH: int = 1
 _JUMP_GLOW_COLOR = (255, 255, 100)
 _JUMP_GLOW_RADIUS: int = 20
 _JUMP_GLOW_DURATION: float = 0.1
@@ -342,19 +355,61 @@ class ReplayScene(Scene):
         assert self._brain is not None
 
         screen_h = surface.get_height()
+        line_surf = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
 
-        for net in self._brain.networks:
+        for net_idx, net in enumerate(self._brain.networks):
+            net_color = _NETWORK_COLORS[net_idx % len(_NETWORK_COLORS)]
+
+            # Compute screen positions + active state for each neuron
+            positions: list[tuple[int, int]] = []
+            actives: list[bool] = []
             for neuron in net.neurons:
-                active = neuron.is_active(
-                    self._player.state.x, self._player.state.y, self._world,
-                )
-                color = _NEURON_GREEN if active else _NEURON_RED
-                sx = (
+                sx = int(
                     World.to_px(self._player.state.x + neuron.dx)
                     - self._camera.x_offset
                 )
-                sy = screen_h - World.to_px(self._player.state.y + neuron.dy)
-                pygame.draw.circle(surface, color, (sx, sy), _NEURON_RADIUS)
+                sy = int(screen_h - World.to_px(self._player.state.y + neuron.dy))
+                positions.append((sx, sy))
+                actives.append(neuron.is_active(
+                    self._player.state.x, self._player.state.y, self._world,
+                ))
+
+            # Central hub = average position of all neurons in the network
+            if positions:
+                cx = sum(p[0] for p in positions) // len(positions)
+                cy = sum(p[1] for p in positions) // len(positions)
+            else:
+                continue
+            hub = (cx, cy)
+            network_fires = all(actives)
+
+            # Draw lines from each neuron to the central hub
+            for pos, active in zip(positions, actives):
+                line_color = (*(_NEURON_GREEN if active else _NEURON_RED), _NETWORK_LINE_ALPHA)
+                pygame.draw.line(line_surf, line_color, pos, hub, _NETWORK_LINE_WIDTH)
+
+            # Draw neuron dots
+            for pos, active in zip(positions, actives):
+                dot_color = _NEURON_GREEN if active else _NEURON_RED
+                pygame.draw.circle(surface, net_color, pos, _NEURON_RADIUS + 2)
+                pygame.draw.circle(surface, dot_color, pos, _NEURON_RADIUS)
+
+            # Draw central hub — lights up in network color when firing
+            if network_fires:
+                glow_surf = pygame.Surface(
+                    (_HUB_GLOW_RADIUS * 2, _HUB_GLOW_RADIUS * 2), pygame.SRCALPHA,
+                )
+                pygame.draw.circle(
+                    glow_surf, (*net_color, 100),
+                    (_HUB_GLOW_RADIUS, _HUB_GLOW_RADIUS), _HUB_GLOW_RADIUS,
+                )
+                surface.blit(glow_surf, (hub[0] - _HUB_GLOW_RADIUS, hub[1] - _HUB_GLOW_RADIUS))
+                pygame.draw.circle(surface, net_color, hub, _HUB_RADIUS)
+            else:
+                pygame.draw.circle(surface, _HUB_OFF_COLOR, hub, _HUB_RADIUS)
+            pygame.draw.circle(surface, net_color, hub, _HUB_RADIUS, 2)
+
+        surface.blit(line_surf, (0, 0))
 
         # Jump glow
         if self._glow_timer > 0.0:
