@@ -36,7 +36,7 @@ def main() -> None:
         # Scene transition requested?
         if scene.next_scene is not None:
             scene = scene.next_scene
-            # (next_scene on the new scene starts as None via Scene.__init__)
+            scene.next_scene = None  # clear stale next_scene on reused scenes
 
         # Fixed-timestep physics steps
         while accumulator >= DT:
