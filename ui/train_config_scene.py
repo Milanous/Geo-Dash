@@ -22,16 +22,17 @@ if TYPE_CHECKING:
 
 # ── Field definitions ────────────────────────────────────────────────
 # (label, attr_name, type, default_value)
+_DEFAULTS = TrainingConfig()
 FIELDS: list[tuple[str, str, type, int | float]] = [
-    ("Population size", "population_size", int, 1000),
-    ("Max generations", "max_generations", int, 100),
-    ("Top-N selection", "top_n", int, 10),
-    ("Mutation sigma", "mutation_sigma", float, 1.0),
-    ("Max seconds/gen", "max_seconds_per_gen", float, 120.0),
-    ("P(move)", "p_move", float, 0.70),
-    ("P(neuron)", "p_neuron", float, 0.25),
-    ("P(network)", "p_network", float, 0.05),
-    ("Mutations/individual", "mutations_per_individual", int, 1),
+    ("Population size", "population_size", int, _DEFAULTS.population_size),
+    ("Max generations", "max_generations", int, _DEFAULTS.max_generations),
+    ("Top-N selection", "top_n", int, _DEFAULTS.top_n),
+    ("Mutation sigma", "mutation_sigma", float, _DEFAULTS.mutation_sigma),
+    ("Max seconds/gen", "max_seconds_per_gen", float, _DEFAULTS.max_seconds_per_gen),
+    ("P(move)", "p_move", float, _DEFAULTS.p_move),
+    ("P(neuron)", "p_neuron", float, _DEFAULTS.p_neuron),
+    ("P(network)", "p_network", float, _DEFAULTS.p_network),
+    ("Mutations/individual", "mutations_per_individual", int, _DEFAULTS.mutations_per_individual),
 ]
 
 # ── Layout constants ─────────────────────────────────────────────────
