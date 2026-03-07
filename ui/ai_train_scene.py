@@ -11,6 +11,7 @@ Import rules: ui/ may import ai/, engine/, renderer/, pygame.
 
 from __future__ import annotations
 
+import glob
 import json
 import os
 import random
@@ -88,6 +89,9 @@ class AITrainScene(Scene):
         # Max steps per generation
         self._max_steps_per_gen: int = int(config.max_seconds_per_gen * PHYSICS_RATE)
         self._step_count: int = 0
+
+        # Clear old generation files before starting fresh
+        self._clear_old_brains()
 
         # Generate initial population
         self.brains: list[Brain] = [
@@ -278,6 +282,11 @@ class AITrainScene(Scene):
         self.brains = next_gen
         self._sim = PopulationSim(self.brains, self.level, self.config)
         self._step_count = 0
+
+    def _clear_old_brains(self) -> None:
+        """Remove previously saved generation files from brains_dir."""
+        for path in glob.glob(os.path.join(self.brains_dir, "gen_*_best.json")):
+            os.remove(path)
 
     def _save_best_brain(self, brain: Brain, fitness: float) -> None:
         """Save the best brain of this generation to disk."""
