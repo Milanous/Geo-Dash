@@ -19,18 +19,18 @@ So that complex conditions can trigger a jump.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ai/network.py` : class `Network`
-  - [ ] 1.1 `class Network` avec champ `neurons: list[Neuron]`
-  - [ ] 1.2 `should_fire(self, player_x: float, player_y: float, world: World) -> bool`
+- [x] Task 1 — `ai/network.py` : class `Network`
+  - [x] 1.1 `class Network` avec champ `neurons: list[Neuron]`
+  - [x] 1.2 `should_fire(self, player_x: float, player_y: float, world: World) -> bool`
     - Retourne `False` si `self.neurons` est vide
     - Retourne `True` uniquement si **tous** les neurones sont actifs (`all(...)`)
-  - [ ] 1.3 ZERO import `pygame`
-- [ ] Task 2 — Ajouter tests dans `tests/test_brain.py`
-  - [ ] 2.1 Test : tous les neurones actifs → `True`
-  - [ ] 2.2 Test : un neurone inactif → `False`
-  - [ ] 2.3 Test : réseau vide → `False`
-  - [ ] 2.4 Test : réseau à un seul neurone actif → `True`
-  - [ ] 2.5 Test : réseau à un seul neurone inactif → `False`
+  - [x] 1.3 ZERO import `pygame`
+- [x] Task 2 — Ajouter tests dans `tests/test_brain.py`
+  - [x] 2.1 Test : tous les neurones actifs → `True`
+  - [x] 2.2 Test : un neurone inactif → `False`
+  - [x] 2.3 Test : réseau vide → `False`
+  - [x] 2.4 Test : réseau à un seul neurone actif → `True`
+  - [x] 2.5 Test : réseau à un seul neurone inactif → `False`
 
 ## Dev Notes
 

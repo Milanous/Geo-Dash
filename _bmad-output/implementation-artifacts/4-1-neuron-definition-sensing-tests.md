@@ -19,21 +19,21 @@ So that brains can perceive the level.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ai/neuron.py` : dataclass `Neuron`
-  - [ ] 1.1 `@dataclass class Neuron` avec champs : `dx: float`, `dy: float`, `type: TileType`, `polarity: str` (valeurs: `"green"` | `"red"`)
-  - [ ] 1.2 `is_active(self, player_x: float, player_y: float, world: World) -> bool`
+- [x] Task 1 — `ai/neuron.py` : dataclass `Neuron`
+  - [x] 1.1 `@dataclass class Neuron` avec champs : `dx: float`, `dy: float`, `type: TileType`, `polarity: str` (valeurs: `"green"` | `"red"`)
+  - [x] 1.2 `is_active(self, player_x: float, player_y: float, world: World) -> bool`
     - Vérifie le tile à `(player_x + self.dx, player_y + self.dy)` via `world.tile_at()`
     - `"green"` → retourne `True` si le tile correspond à `self.type`
     - `"red"` → retourne `True` si le tile ne correspond PAS à `self.type`
-  - [ ] 1.3 ZERO import `pygame`
-- [ ] Task 2 — `tests/test_brain.py` : tests `Neuron` headless
-  - [ ] 2.1 Test : `Neuron.dx` et `dy` sont bien des floats
-  - [ ] 2.2 Test : green neuron, tile correspond → `True`
-  - [ ] 2.3 Test : green neuron, tile ne correspond pas → `False`
-  - [ ] 2.4 Test : red neuron, tile correspond → `False`
-  - [ ] 2.5 Test : red neuron, tile ne correspond pas → `True`
-  - [ ] 2.6 Test : `is_active` sur position hors-limites → AIR retourné silencieusement (pas de crash)
-  - [ ] 2.7 Test : import guard — `neuron.py` n'importe pas `pygame`
+  - [x] 1.3 ZERO import `pygame`
+- [x] Task 2 — `tests/test_brain.py` : tests `Neuron` headless
+  - [x] 2.1 Test : `Neuron.dx` et `dy` sont bien des floats
+  - [x] 2.2 Test : green neuron, tile correspond → `True`
+  - [x] 2.3 Test : green neuron, tile ne correspond pas → `False`
+  - [x] 2.4 Test : red neuron, tile correspond → `False`
+  - [x] 2.5 Test : red neuron, tile ne correspond pas → `True`
+  - [x] 2.6 Test : `is_active` sur position hors-limites → AIR retourné silencieusement (pas de crash)
+  - [x] 2.7 Test : import guard — `neuron.py` n'importe pas `pygame`
 
 ## Dev Notes
 

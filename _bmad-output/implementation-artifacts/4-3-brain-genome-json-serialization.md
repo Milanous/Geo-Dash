@@ -20,21 +20,21 @@ So that the full decision logic is encapsulated in a serializable genome.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ai/brain.py` : class `Brain`
-  - [ ] 1.1 `class Brain` avec champ `networks: list[Network]`
-  - [ ] 1.2 `should_jump(self, player_x: float, player_y: float, world: World) -> bool`
+- [x] Task 1 — `ai/brain.py` : class `Brain`
+  - [x] 1.1 `class Brain` avec champ `networks: list[Network]`
+  - [x] 1.2 `should_jump(self, player_x: float, player_y: float, world: World) -> bool`
     - Retourne `True` si **au moins un** réseau se déclenche (`any(...)`)
     - Retourne `False` si `self.networks` est vide ou si aucun ne se déclenche
-  - [ ] 1.3 `to_json(self) -> dict` — sérialise le Brain selon le schéma défini
-  - [ ] 1.4 `Brain.from_json(data: dict) -> Brain` — classmethod de désérialisation, lève `ValueError` si `version != 1`
-  - [ ] 1.5 ZERO import `pygame`
-- [ ] Task 2 — Ajouter tests dans `tests/test_brain.py`
-  - [ ] 2.1 Test : `should_jump` retourne `True` si au moins un réseau se déclenche
-  - [ ] 2.2 Test : `should_jump` retourne `False` si aucun réseau ne se déclenche
-  - [ ] 2.3 Test : `should_jump` retourne `False` pour un Brain sans réseau
-  - [ ] 2.4 Test : `to_json()` retourne `version=1` et la structure complète
-  - [ ] 2.5 Test : `from_json(to_json())` round-trip → Brain fonctionnellement identique
-  - [ ] 2.6 Test : `from_json` avec `version=2` lève `ValueError`
+  - [x] 1.3 `to_json(self) -> dict` — sérialise le Brain selon le schéma défini
+  - [x] 1.4 `Brain.from_json(data: dict) -> Brain` — classmethod de désérialisation, lève `ValueError` si `version != 1`
+  - [x] 1.5 ZERO import `pygame`
+- [x] Task 2 — Ajouter tests dans `tests/test_brain.py`
+  - [x] 2.1 Test : `should_jump` retourne `True` si au moins un réseau se déclenche
+  - [x] 2.2 Test : `should_jump` retourne `False` si aucun réseau ne se déclenche
+  - [x] 2.3 Test : `should_jump` retourne `False` pour un Brain sans réseau
+  - [x] 2.4 Test : `to_json()` retourne `version=1` et la structure complète
+  - [x] 2.5 Test : `from_json(to_json())` round-trip → Brain fonctionnellement identique
+  - [x] 2.6 Test : `from_json` avec `version=2` lève `ValueError`
 
 ## Dev Notes
 

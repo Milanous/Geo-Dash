@@ -1,6 +1,6 @@
 # Story 5.5: Generation Stats HUD
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -19,18 +19,18 @@ So that I can monitor whether the AI is improving.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ui/hud.py` : class `StatsHUD`
-  - [ ] 1.1 `StatsHUD.__init__()` : initialise la liste `self.history: list[float]` (best fitness par génération)
-  - [ ] 1.2 `update(stats: dict) -> None` : met à jour `self.history` avec `stats["best_fitness"]` si génération terminée
-  - [ ] 1.3 `draw(surface: pygame.Surface, stats: dict) -> None`
+- [x] Task 1 — `ui/hud.py` : class `StatsHUD`
+  - [x] 1.1 `StatsHUD.__init__()` : initialise la liste `self.history: list[float]` (best fitness par génération)
+  - [x] 1.2 `update(stats: dict) -> None` : met à jour `self.history` avec `stats["best_fitness"]` si génération terminée
+  - [x] 1.3 `draw(surface: pygame.Surface, stats: dict) -> None`
     - Affiche : `"Gen {gen} / 100"`, `"Best: {best:.1f}"`, `"Avg: {avg:.1f}"`, `"Worst: {worst:.1f}"`, `"ALIVE: {alive}"`
     - Dessine le line chart de `self.history` dans un mini-panneau (50×100 px env.)
     - Affiche le hint `"V: toggle agents"`
-  - [ ] 1.4 `debug_agents: bool` — toggle V ; `AITrainScene` lit cette propriété pour activer le rendu des agents
-- [ ] Task 2 — Tests headless dans `tests/test_evolution.py` ou nouveau `tests/test_hud.py`
-  - [ ] 2.1 Test : `StatsHUD` s'instancie sans erreur (headless)
-  - [ ] 2.2 Test : `update()` ajoute bien à `history`
-  - [ ] 2.3 Test : `StatsHUD` n'importe pas `ai.simulation`
+  - [x] 1.4 `debug_agents: bool` — toggle V ; `AITrainScene` lit cette propriété pour activer le rendu des agents
+- [x] Task 2 — Tests headless dans `tests/test_evolution.py` ou nouveau `tests/test_hud.py`
+  - [x] 2.1 Test : `StatsHUD` s'instancie sans erreur (headless)
+  - [x] 2.2 Test : `update()` ajoute bien à `history`
+  - [x] 2.3 Test : `StatsHUD` n'importe pas `ai.simulation`
 
 ## Dev Notes
 
@@ -60,13 +60,24 @@ Ne pas appeler `StatsHUD.draw()` dans les tests headless (nécessite un display)
 ## Dev Agent Record
 
 ### Agent Model Used
-_À remplir_
+Claude Opus 4.6 (Copilot Agent — Amelia)
 
 ### Debug Log References
+Aucun — implémentation directe, 0 échec.
 
 ### Completion Notes List
+- `StatsHUD` class created with `history`, `debug_agents`, lazy `_font` init
+- `update(stats)` appends `best_fitness` to `history` only when `gen_complete` is True
+- `draw(surface, stats)` renders: gen counter, best/avg/worst fitness, alive count, "V: toggle agents" hint, mini line chart (120×80px) when ≥2 history points
+- pygame imported lazily in `draw`/`_draw_chart` methods (headless-compatible at module level)
+- 5 headless tests: instantiation, update with gen_complete, update without gen_complete, accumulation over 5 gens, import guard (no ai.simulation)
+- 260/260 tests pass (suite complète hors modules pygame non-installés)
 
 ### File List
 
 - `ui/hud.py` (nouveau)
-- `tests/test_hud.py` (nouveau) ou section dans `tests/test_evolution.py`
+- `tests/test_hud.py` (nouveau)
+
+## Change Log
+
+- 2026-03-07: Story 5.5 implemented — StatsHUD widget with headless tests (5/5 pass)

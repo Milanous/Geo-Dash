@@ -81,10 +81,10 @@ development_status:
   # Epic 4: Système de cerveaux IA
   # Covers: FR-P2-01, FR-P2-02, FR-P2-03
   # ─────────────────────────────────────────────────────────────
-  epic-4: in-progress
-  4-1-neuron-definition-sensing-tests: ready-for-dev
-  4-2-network-grouping-firing-logic: ready-for-dev
-  4-3-brain-genome-json-serialization: ready-for-dev
+  epic-4: done
+  4-1-neuron-definition-sensing-tests: done
+  4-2-network-grouping-firing-logic: done
+  4-3-brain-genome-json-serialization: done
   epic-4-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────
@@ -92,15 +92,15 @@ development_status:
   # Covers: FR-P2-04, FR-P2-05, FR-P2-06, FR-P2-07, FR-P2-08, FR-P2-09
   # Updated: 2026-03-07 (sprint-change-proposal — configurable hyperparameters)
   # ─────────────────────────────────────────────────────────────
-  epic-5: in-progress
-  5-0-training-config-dataclass: ready-for-dev
-  5-0b-train-config-scene-ui: ready-for-dev
+  epic-5: done
+  5-0-training-config-dataclass: done
+  5-0b-train-config-scene-ui: done
   5-1-populationsim-numpy-vectorised-simulation: done
   5-2-fitness-evaluation: done
   5-3-evolution-top-10-selection-gaussian-mutation: done
   5-4-generation-loop-100-generations-save-early-stop: done
-  5-5-generation-stats-hud: ready-for-dev
-  5-6-best-agent-replay: ready-for-dev
+  5-5-generation-stats-hud: done
+  5-6-best-agent-replay: done
 
   # ─────────────────────────────────────────────────────────────
   # Epic 6: Level Management & UX
