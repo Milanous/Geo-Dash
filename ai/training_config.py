@@ -11,6 +11,7 @@ class TrainingConfig:
     p_move: float = 0.70
     p_neuron: float = 0.25
     p_network: float = 0.05
+    mutations_per_individual: int = 1
 
     def __post_init__(self):
         if self.population_size < 1:
@@ -33,3 +34,5 @@ class TrainingConfig:
             raise ValueError("top_n must be >= 1")
         if self.top_n >= self.population_size:
             raise ValueError("top_n must be < population_size")
+        if self.mutations_per_individual < 1:
+            raise ValueError("mutations_per_individual must be >= 1")

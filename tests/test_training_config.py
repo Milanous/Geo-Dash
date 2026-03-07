@@ -14,6 +14,7 @@ class TestTrainingConfigDefaults:
         assert cfg.p_move == 0.70
         assert cfg.p_neuron == 0.25
         assert cfg.p_network == 0.05
+        assert cfg.mutations_per_individual == 1
 
 
 class TestTrainingConfigValidation:
@@ -64,6 +65,14 @@ class TestTrainingConfigValidation:
     def test_max_seconds_per_gen_negative(self):
         with pytest.raises(ValueError):
             TrainingConfig(max_seconds_per_gen=-10.0)
+
+    def test_mutations_per_individual_zero(self):
+        with pytest.raises(ValueError):
+            TrainingConfig(mutations_per_individual=0)
+
+    def test_mutations_per_individual_negative(self):
+        with pytest.raises(ValueError):
+            TrainingConfig(mutations_per_individual=-1)
 
 
 class TestTrainingConfigImportGuard:

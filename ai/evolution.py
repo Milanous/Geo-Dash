@@ -26,14 +26,15 @@ def select_top_n(brains: list[Brain], fitness: np.ndarray, n: int) -> list[Brain
 
 def mutate(brain: Brain, config: TrainingConfig) -> Brain:
     new_brain = copy.deepcopy(brain)
-    r = random.random()
+    for _ in range(config.mutations_per_individual):
+        r = random.random()
 
-    if r < config.p_move:
-        _mutate_move(new_brain, config)
-    elif r < config.p_move + config.p_neuron:
-        _mutate_neuron(new_brain)
-    elif r < config.p_move + config.p_neuron + config.p_network:
-        _mutate_network(new_brain)
+        if r < config.p_move:
+            _mutate_move(new_brain, config)
+        elif r < config.p_move + config.p_neuron:
+            _mutate_neuron(new_brain)
+        elif r < config.p_move + config.p_neuron + config.p_network:
+            _mutate_network(new_brain)
 
     # Ensure at least 1 network with 1 neuron
     if not new_brain.networks:
