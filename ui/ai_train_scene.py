@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import os
 import random
-from pathlib import Path
+
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -24,9 +24,10 @@ from ai.brain import Brain
 from ai.evolution import generate_random_brain, mutate, select_top_n
 from ai.simulation import PopulationSim
 from ai.training_config import TrainingConfig
-from engine.physics import DT, PHYSICS_RATE
+from engine.physics import PHYSICS_RATE
 from engine.world import TileType, World
 from ui.scene import Scene
+from ui.hud import StatsHUD
 
 if TYPE_CHECKING:
     pass
@@ -76,6 +77,9 @@ class AITrainScene(Scene):
         self.early_stopped: bool = False
         self.status_msg: str = ""
 
+        # HUD from story 5.5
+        self.hud = StatsHUD()
+
         # Max steps per generation
         self._max_steps_per_gen: int = int(config.max_seconds_per_gen * PHYSICS_RATE)
         self._step_count: int = 0
@@ -87,7 +91,9 @@ class AITrainScene(Scene):
 
         # Start first generation simulation
         self._sim: PopulationSim = PopulationSim(
-            self.brains, self.level, self.config,
+            self.brains,
+            self.level,
+            self.config,
         )
         self._step_count = 0
 
@@ -109,6 +115,15 @@ class AITrainScene(Scene):
                         self.next_scene = self._return_scene
                         return True
                     return False
+                if event.key == pygame.K_RETURN and self.finished:
+                    from ui.replay_scene import ReplayScene
+                    self.next_scene = ReplayScene(
+                        world=self.level,
+                        return_scene=self._return_scene,
+                        brains_dir=self.brains_dir,
+                        auto_gen=self.gen_num,
+                    )
+                    return True
         return True
 
     def update(self, dt: float) -> None:
@@ -130,6 +145,17 @@ class AITrainScene(Scene):
             self._font = pygame.font.Font(None, 28)
         if self._title_font is None:
             self._title_font = pygame.font.Font(None, 40)
+
+        # Draw HUD instead of local strings
+        stats_dict = {
+            "gen": self.gen_num + 1,
+            "best_fitness": float(np.max(self._sim.fitness())) if self.brains else 0.0,
+            "avg_fitness": float(np.mean(self._sim.fitness())) if self.brains else 0.0,
+            "worst_fitness": float(np.min(self._sim.fitness())) if self.brains else 0.0,
+            "alive": int(np.sum(self._sim.alive)) if self.brains else 0,
+            "gen_complete": False,
+        }
+        self.hud.draw(surface, stats_dict)
 
         # Title
         title = self._title_font.render("AI Training", True, _TITLE_COLOR)
@@ -157,7 +183,14 @@ class AITrainScene(Scene):
         if self.status_msg:
             color = _SUCCESS_COLOR if self.early_stopped else _TEXT_COLOR
             msg = self._font.render(self.status_msg, True, color)
-            surface.blit(msg, (sw // 2 - msg.get_width() // 2, sh - 100))
+            surface.blit(msg, (sw // 2 - msg.get_width() // 2, sh - 120))
+
+        # Watch-best hint shown when training is done
+        if self.finished:
+            watch_hint = self._font.render(
+                "[Entrée] Voir le meilleur  [ESC] Quitter", True, _SUCCESS_COLOR
+            )
+            surface.blit(watch_hint, (sw // 2 - watch_hint.get_width() // 2, sh - 75))
 
         # Hint
         hint = self._font.render("[ESC] Quitter", True, _HINT_COLOR)

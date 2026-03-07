@@ -55,6 +55,7 @@ class ReplayScene(Scene):
         world: World,
         return_scene: Scene | None = None,
         brains_dir: str = _DEFAULT_BRAINS_DIR,
+        auto_gen: int | None = None,
     ) -> None:
         super().__init__()
         self._world = world
@@ -78,6 +79,12 @@ class ReplayScene(Scene):
         self._font: pygame.font.Font | None = None
         self._title_font: pygame.font.Font | None = None
         self._hint_font: pygame.font.Font | None = None
+
+        # Auto-load a specific generation (e.g. when coming from training)
+        if auto_gen is not None:
+            self._load_gen(auto_gen)
+            if auto_gen in self._generations:
+                self._selected_idx = self._generations.index(auto_gen)
 
     # ------------------------------------------------------------------
     # Generation scanning
