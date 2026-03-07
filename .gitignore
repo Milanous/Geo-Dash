@@ -30,3 +30,4 @@ data/levels/*.gmd
 
 # BMAD output (keep planning artifacts, ignore build cache)
 # _bmad-output/ is tracked
+data/brains/*.json

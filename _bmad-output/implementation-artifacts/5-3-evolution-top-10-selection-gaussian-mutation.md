@@ -89,3 +89,11 @@ None — all tests passed on first run (27/27 evolution tests, 250/250 full suit
 
 - `ai/evolution.py` (nouveau)
 - `tests/test_evolution.py` (modifié)
+- `ai/simulation.py` (modifié indirectement via 5.2 mis à jour)
+- `_bmad-output/implementation-artifacts/5-2-fitness-evaluation.md` (mis à jour)
+
+### Review Follow-ups (AI)
+- [x] [AI-Review][High] Bug corrigé : `random.choice(brain.networks)` qui levait une `IndexError` si les networks étaient vides
+- [x] [AI-Review][High] Ajout d'une garantie : Si les networks sont vides à la base l'exécution ou post-mutation, le programme ajoute un network + un neurone de force pour éviter la violaton de l'AC 4. Tests robustes ajoutés.
+- [x] [AI-Review][Medium] Oublis de commit : tous les fichiers en file d'attente sur git ont été commités et validés
+- [x] [AI-Review][Low] Ajout du typage manquant `config: TrainingConfig` manquant dans `def mutate(...)`

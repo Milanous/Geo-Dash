@@ -1,7 +1,9 @@
-"""tests/test_evolution.py — Tests for PopulationSim (Story 5.1) and Evolution (Story 5.3)."""
+"""tests/test_evolution.py — Tests for PopulationSim (Story 5.1), Evolution (Story 5.3), and AITrainScene (Story 5.4)."""
 
 import copy
 import importlib
+import json
+import os
 import sys
 import time
 
@@ -418,3 +420,173 @@ class TestEvolutionImportGuard:
                     assert alias.name != "pygame", "evolution.py imports pygame"
             elif isinstance(node, ast.ImportFrom):
                 assert node.module != "pygame", "evolution.py imports from pygame"
+
+
+# ===========================================================================
+# Story 5.4 — Generation Loop: 100 Generations, Save & Early Stop
+# ===========================================================================
+
+
+def _train_config(pop: int = 20, top_n: int = 5, max_gen: int = 3) -> TrainingConfig:
+    return TrainingConfig(
+        population_size=pop,
+        top_n=top_n,
+        max_generations=max_gen,
+        max_seconds_per_gen=0.5,
+    )
+
+
+def _make_ai_train_scene(
+    config: TrainingConfig | None = None,
+    world: World | None = None,
+):
+    """Create an AITrainScene with pygame mocked to avoid SDL init errors."""
+    import unittest.mock as mock
+
+    # Completely patch pygame
+    with mock.patch.dict("sys.modules", {"pygame": mock.MagicMock()}):
+        import importlib
+        import ui.ai_train_scene as mod
+        importlib.reload(mod)
+        
+        # Override steps per frame to 1 for easier deterministic testing
+        mod._STEPS_PER_FRAME = 1
+
+        if config is None:
+            config = _train_config()
+        if world is None:
+            world = _flat_world()
+            
+        scene = mod.AITrainScene(config=config, world=world)
+        return scene
+
+
+# ---------------------------------------------------------------------------
+# Task 2.1 — Generation loop produces population_size brains each iteration
+# ---------------------------------------------------------------------------
+
+class TestAITrainSceneGenerationLoop:
+    def test_population_size_maintained(self):
+        """The generation loop in AITrainScene maintains population_size brains."""
+        # Story 5.4 Task 2.1 requires testing loop produces 1000 brains at each iteration
+        cfg = _train_config(pop=1000, top_n=10, max_gen=2)
+        scene = _make_ai_train_scene(config=cfg)
+
+        # Force generation to complete quickly
+        scene._max_steps_per_gen = 2
+        
+        assert len(scene.brains) == 1000
+        assert scene.gen_num == 0
+
+        # Step 1
+        scene.update(DT)
+        assert scene.gen_num == 0
+        
+        # Step 2 -> forces _end_generation
+        scene.update(DT)
+        
+        # NOTE: with the mock, _STEPS_PER_FRAME is 1 so one update() is 1 step
+        # Since _max_steps_per_gen is 2, it requires a 3rd update to trigger _generation_done
+        # because _generation_done is evaluated BEFORE sim.step in the loop.
+        scene.update(DT)
+        
+        assert scene.gen_num == 1
+        assert len(scene.brains) == 1000
+        
+        # Original sim should be replaced with a new one
+        assert scene._step_count == 0
+
+
+# ---------------------------------------------------------------------------
+# Task 2.2 — gen_num increments after each generation
+# ---------------------------------------------------------------------------
+
+class TestAITrainSceneGenNumIncrements:
+    def test_gen_num_increments(self):
+        """gen_num increments correctly and respects max_generations."""
+        cfg = _train_config(pop=10, top_n=3, max_gen=3)
+        scene = _make_ai_train_scene(config=cfg)
+
+        scene._max_steps_per_gen = 1
+        
+        assert not scene.finished
+
+        # First step increments _step_count to 1
+        scene.update(DT)
+        assert scene.gen_num == 0
+        
+        # Second call to update() catches _step_count >= _max_steps_per_gen
+        scene.update(DT)
+        assert scene.gen_num == 1
+        assert not scene.finished
+        
+        # Gen 2
+        scene.update(DT) # step to 1
+        scene.update(DT) # ends gen
+        assert scene.gen_num == 2
+        assert not scene.finished
+
+        # Gen 3
+        scene.update(DT) # step to 1
+        scene.update(DT) # ends gen
+        assert scene.gen_num == 3
+        assert scene.finished  # Reached max_generations
+        assert "Training complete" in scene.status_msg
+
+
+# ---------------------------------------------------------------------------
+# Task 2.3 — gen_001_best.json created after 1st generation (tmp_path)
+# ---------------------------------------------------------------------------
+
+class TestAITrainSceneBestBrainSaved:
+    def test_best_brain_saved_to_tmp_path(self, tmp_path):
+        """AITrainScene saves the best brain to the configured directory."""
+        cfg = _train_config(pop=10, top_n=3, max_gen=2)
+        scene = _make_ai_train_scene(config=cfg)
+
+        # Redirect save dir to tmp_path
+        brains_dir = str(tmp_path / "brains")
+        scene.brains_dir = brains_dir
+
+        scene._max_steps_per_gen = 1
+        
+        # Trigger generation end
+        scene.update(DT) # step to 1
+        scene.update(DT) # ends gen
+
+        assert scene.gen_num == 1
+        
+        path = os.path.join(brains_dir, "gen_001_best.json")
+        assert os.path.isfile(path)
+        
+        with open(path) as f:
+            saved = json.load(f)
+            
+        assert saved["version"] == 1
+        assert saved["generation"] == 1
+        assert "fitness" in saved
+        assert "networks" in saved
+
+
+# ---------------------------------------------------------------------------
+# Early Stop
+# ---------------------------------------------------------------------------
+
+class TestAITrainSceneEarlyStop:
+    def test_early_stop_on_level_completion(self):
+        """Scene stops early if an agent reaches the level width."""
+        cfg = _train_config(pop=5, top_n=2, max_gen=10)
+        # Small world
+        world = _flat_world(width=10)
+        scene = _make_ai_train_scene(config=cfg, world=world)
+
+        # Force one agent to win
+        scene._sim.max_x[0] = 11.0
+        
+        # Trigger generation end
+        scene._step_count = scene._max_steps_per_gen
+        scene.update(DT)
+
+        assert scene.early_stopped
+        assert scene.finished
+        assert scene.status_msg == "Level Completed!"
