@@ -32,7 +32,7 @@ def mutate(brain: Brain, config: TrainingConfig) -> Brain:
         _mutate_move(new_brain, config)
     elif r < config.p_move + config.p_neuron:
         _mutate_neuron(new_brain)
-    else:
+    elif r < config.p_move + config.p_neuron + config.p_network:
         _mutate_network(new_brain)
 
     # Ensure at least 1 network with 1 neuron

@@ -41,6 +41,7 @@ class TestDefaultValues:
         assert scene.values["max_seconds_per_gen"] == "120.0"
         assert scene.values["p_move"] == "0.7"
         assert scene.values["p_neuron"] == "0.25"
+        assert scene.values["p_network"] == "0.05"
 
     def test_all_fields_present(self):
         scene = _make_scene()
@@ -52,13 +53,13 @@ class TestInvalidProbabilities:
     """2.2 — p_move + p_neuron > 1.0 ➜ error, no transition."""
 
     def test_p_move_08_p_neuron_03(self):
-        scene = _make_scene(p_move="0.8", p_neuron="0.3")
+        scene = _make_scene(p_move="0.8", p_neuron="0.3", p_network="0.0")
         scene._try_launch()
         assert scene.error_msg != ""
         assert scene.next_scene is None
 
     def test_p_move_1_p_neuron_01(self):
-        scene = _make_scene(p_move="1.0", p_neuron="0.01")
+        scene = _make_scene(p_move="1.0", p_neuron="0.01", p_network="0.0")
         scene._try_launch()
         assert scene.error_msg != ""
         assert scene.next_scene is None

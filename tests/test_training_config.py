@@ -13,6 +13,7 @@ class TestTrainingConfigDefaults:
         assert cfg.max_seconds_per_gen == 120.0
         assert cfg.p_move == 0.70
         assert cfg.p_neuron == 0.25
+        assert cfg.p_network == 0.05
 
 
 class TestTrainingConfigValidation:
@@ -26,7 +27,7 @@ class TestTrainingConfigValidation:
 
     def test_p_move_plus_p_neuron_exceeds_one(self):
         with pytest.raises(ValueError):
-            TrainingConfig(p_move=0.80, p_neuron=0.30)
+            TrainingConfig(p_move=0.80, p_neuron=0.30, p_network=0.0)
 
     def test_top_n_zero(self):
         with pytest.raises(ValueError):

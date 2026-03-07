@@ -29,6 +29,7 @@ FIELDS: list[tuple[str, str, type, int | float]] = [
     ("Max seconds/gen", "max_seconds_per_gen", float, 120.0),
     ("P(move)", "p_move", float, 0.70),
     ("P(neuron)", "p_neuron", float, 0.25),
+    ("P(network)", "p_network", float, 0.05),
 ]
 
 # ── Visual constants ─────────────────────────────────────────────────

@@ -10,6 +10,7 @@ class TrainingConfig:
     max_seconds_per_gen: float = 120.0
     p_move: float = 0.70
     p_neuron: float = 0.25
+    p_network: float = 0.05
 
     def __post_init__(self):
         if self.population_size < 1:
@@ -24,8 +25,10 @@ class TrainingConfig:
             raise ValueError("p_move must be between 0.0 and 1.0")
         if self.p_neuron < 0.0 or self.p_neuron > 1.0:
             raise ValueError("p_neuron must be between 0.0 and 1.0")
-        if self.p_move + self.p_neuron > 1.0:
-            raise ValueError("p_move + p_neuron must be <= 1.0")
+        if self.p_network < 0.0 or self.p_network > 1.0:
+            raise ValueError("p_network must be between 0.0 and 1.0")
+        if self.p_move + self.p_neuron + self.p_network > 1.0:
+            raise ValueError("p_move + p_neuron + p_network must be <= 1.0")
         if self.top_n < 1:
             raise ValueError("top_n must be >= 1")
         if self.top_n >= self.population_size:
