@@ -10,11 +10,11 @@ So that each generation improves on the previous one.
 
 ## Acceptance Criteria
 
-1. **Given** `ai/evolution.py` exists with `select_top_n(brains, fitness, n=10)` and `mutate(brain)` **When** `select_top_n` is called **Then** it returns the 10 brains with the highest fitness values
-2. **When** `mutate(brain)` is called **Then** it returns a **new** `Brain` (original unchanged) with one of the following applied:
-   - (~70%) 1–3 neuron positions displaced by `Δ ~ N(0, 1.0²)` per axis
-   - (~25%) a neuron added to or removed from a randomly chosen network
-   - (~5%) an entire network added or removed
+1. **Given** `ai/evolution.py` exists with `select_top_n(brains, fitness, n)` and `mutate(brain, config)` **When** `select_top_n` is called with `n=config.top_n` **Then** it returns the top-n brains with the highest fitness values
+2. **When** `mutate(brain, config)` is called **Then** it returns a **new** `Brain` (original unchanged) with one of the following applied:
+   - (`r < config.p_move`) 1–3 neuron positions displaced by `Δ ~ N(0, config.mutation_sigma²)` per axis
+   - (`r < config.p_move + config.p_neuron`) a neuron added to or removed from a randomly chosen network
+   - (else) an entire network added or removed
 3. **And** neuron positions after mutation remain as `float` (not snapped to grid)
 4. **And** mutation never produces a `Brain` with zero networks
 5. **And** `tests/test_evolution.py` verifies `select_top_n` returns n items and `mutate` returns different object with valid structure
@@ -22,14 +22,14 @@ So that each generation improves on the previous one.
 ## Tasks / Subtasks
 
 - [ ] Task 1 — `ai/evolution.py` : fonctions `select_top_n` et `mutate`
-  - [ ] 1.1 `select_top_n(brains: list[Brain], fitness: np.ndarray, n: int = 10) -> list[Brain]`
+  - [ ] 1.1 `select_top_n(brains: list[Brain], fitness: np.ndarray, n: int) -> list[Brain]`
     - Utiliser `np.argsort(fitness)[::-1][:n]` pour les indices top-n
-    - Retourner la liste des cerveaux correspondants
-  - [ ] 1.2 `mutate(brain: Brain) -> Brain`
+    - Retourner la liste des cerveaux correspondants (pas de valeur par défaut — le caller passe `config.top_n`)
+  - [ ] 1.2 `mutate(brain: Brain, config: TrainingConfig) -> Brain`
     - Copie profonde du brain (ne PAS muter l'original — `copy.deepcopy`)
     - Tirage `r = random.random()` pour choisir le type de mutation :
-      - `r < 0.70` → déplacer 1–3 neurones aléatoires : `neuron.dx += np.random.normal(0, 1.0)`, même pour `dy`
-      - `r < 0.95` → ajouter ou supprimer un neurone d'un réseau aléatoire (supprimer seulement si le réseau a > 1 neurone)
+      - `r < config.p_move` → déplacer 1–3 neurones aléatoires : `neuron.dx += np.random.normal(0, config.mutation_sigma)`, même pour `dy`
+      - `r < config.p_move + config.p_neuron` → ajouter ou supprimer un neurone d'un réseau aléatoire (supprimer seulement si le réseau a > 1 neurone)
       - sinon → ajouter ou supprimer un réseau entier (supprimer seulement si len(networks) > 1)
     - Garantir que le résultat a au moins 1 réseau avec au moins 1 neurone
   - [ ] 1.3 `generate_random_brain(n_networks: int = 2, neurons_per_network: int = 3) -> Brain` — helper pour créer des cerveaux aléatoires initiaux
@@ -48,7 +48,7 @@ So that each generation improves on the previous one.
 ### Architecture obligatoire
 
 ```
-ai/evolution.py  →  peut importer ai/ (neuron, network, brain), numpy, random, copy, stdlib
+ai/evolution.py  →  peut importer ai/ (neuron, network, brain, training_config), numpy, random, copy, stdlib
 ai/evolution.py  →  ne peut PAS importer renderer/, pygame
 ```
 

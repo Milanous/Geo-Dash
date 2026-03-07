@@ -10,7 +10,7 @@ So that a full generation completes in under 60 seconds.
 
 ## Acceptance Criteria
 
-1. **Given** `ai/simulation.py` exists with `PopulationSim` **When** `PopulationSim(brains, level)` is instantiated with 1 000 brains **Then** `self.x`, `self.y`, `self.vy`, `self.alive` are `np.ndarray` of shape `(1000,)`
+1. **Given** `ai/simulation.py` exists with `PopulationSim` **When** `PopulationSim(brains, level, config)` is instantiated **Then** `self.x`, `self.y`, `self.vy`, `self.alive` are `np.ndarray` of shape `(config.population_size,)`
 2. **When** `sim.step(DT)` is called once **Then** `self.x[i]` increases by `PLAYER_SPEED * DT` for all alive agents
 3. **And** `self.vy[i]` decreases by `GRAVITY` for all alive agents (gravity = negative → vy decreases)
 4. **And** agents with `alive[i] == False` do not move (position frozen)
@@ -21,7 +21,9 @@ So that a full generation completes in under 60 seconds.
 ## Tasks / Subtasks
 
 - [ ] Task 1 — `ai/simulation.py` : class `PopulationSim`
-  - [ ] 1.1 `__init__(self, brains: list[Brain], level: World)` — initialise les arrays NumPy : `x`, `y`, `vy` de shape `(n,)` float64 ; `alive` de shape `(n,)` bool
+  - [ ] 1.1 `__init__(self, brains: list[Brain], level: World, config: TrainingConfig)` — initialise les arrays NumPy : `x`, `y`, `vy` de shape `(n,)` float64 ; `alive` de shape `(n,)` bool
+    - `self.config = config`
+    - `self.max_steps = int(config.max_seconds_per_gen * PHYSICS_RATE)`
   - [ ] 1.2 `step(self, dt: float) -> None`
     - Gravité vectorisée : `self.vy[self.alive] += GRAVITY * dt` *(attention : `GRAVITY` est négatif dans le projet — `vy` diminue)*
     - Position Y : `self.y[self.alive] += self.vy[self.alive] * dt`
@@ -39,7 +41,7 @@ So that a full generation completes in under 60 seconds.
   - [ ] 2.3 Test : agent vivant avance de `PLAYER_SPEED * dt` en X à chaque step
   - [ ] 2.4 Test : agent touche SPIKE → `alive=False`
   - [ ] 2.5 Test : `fitness()` retourne les positions X courantes
-  - [ ] 2.6 Test benchmark : 1 000 agents × 2 400 steps (10 s de jeu) < 60 s
+  - [ ] 2.6 Test benchmark : 1 000 agents × 7 200 steps (30 s de jeu simulé avec config par défaut) < 60 s
   - [ ] 2.7 Test : import guard — `simulation.py` n'importe pas `pygame`
 
 ## Dev Notes

@@ -10,19 +10,19 @@ So that training requires minimal intervention.
 
 ## Acceptance Criteria
 
-1. **Given** `ui/ai_train_scene.py` exists and the user selects "Train AI" from the menu **When** training starts **Then** a population of 1 000 random brains is generated
-2. **And** each generation runs: simulate → evaluate fitness → select top-10 → mutate × 990 + elites × 10 = 1 000
+1. **Given** `ui/ai_train_scene.py` exists and **When** `AITrainScene(config)` is instantiated (config from `TrainConfigScene`) **Then** a population of `config.population_size` random brains is generated
+2. **And** each generation runs: simulate → evaluate fitness → `select_top_n(n=config.top_n)` → mutate × `(config.population_size - config.top_n)` + elites × `config.top_n`
 3. **And** after each generation, the best brain is saved to `data/brains/gen_NNN_best.json`
 4. **When** any agent completes the full level (fitness ≥ level length) **Then** training stops early and a "Level Completed!" indicator is shown
-5. **When** 100 generations have run **Then** training stops and a summary is displayed
+5. **When** `config.max_generations` generations have run **Then** training stops and a summary is displayed
 6. **And** the user can press `ESC` to abort training at any time
 
 ## Tasks / Subtasks
 
 - [ ] Task 1 — `ui/ai_train_scene.py` : scene d'entraînement
-  - [ ] 1.1 `AITrainScene(Scene)` avec `__init__` : charge le niveau courant, génère la population initiale via `generate_random_brain` × 1 000
+  - [ ] 1.1 `AITrainScene(Scene, config: TrainingConfig)` avec `__init__` : `self.config = config` ; charge le niveau courant, génère la population initiale via `generate_random_brain` × `config.population_size`
   - [ ] 1.2 `update(dt)` : avance la simulation de `n_steps` steps par frame (ex. 4 steps/frame pour accélérer sans bloquer le rendu)
-  - [ ] 1.3 Fin de génération détectée quand `np.all(~sim.alive)` ou que le compteur de steps max est atteint
+  - [ ] 1.3 Fin de génération détectée quand `np.all(~sim.alive)` ou `self.step_count >= int(self.config.max_seconds_per_gen * PHYSICS_RATE)`
   - [ ] 1.4 À chaque fin de génération : `select_top_n` → `mutate` → nouvelle `PopulationSim` → incrémenter `gen_num`
   - [ ] 1.5 Sauvegarde best brain : `data/brains/gen_{gen_num:03d}_best.json` via `json.dumps(brain.to_json())`
   - [ ] 1.6 Early stop : si `np.any(sim.fitness() >= level.width)` → stop avec message
@@ -44,16 +44,17 @@ ui/ai_train_scene.py  →  peut importer ai/, engine/, renderer/, pygame
 ### Population = 10 élites + 990 mutants
 
 ```python
-elites = select_top_n(brains, fitness, n=10)
+elites = select_top_n(brains, fitness, n=config.top_n)
 next_gen = elites[:]
-while len(next_gen) < 1000:
+while len(next_gen) < config.population_size:
     parent = random.choice(elites)
-    next_gen.append(mutate(parent))
+    next_gen.append(mutate(parent, config))
 ```
 
 ### Durée d'une génération
 
-Limiter à `MAX_STEPS_PER_GEN = PHYSICS_RATE * 10` (= 2 400 steps = 10 s de jeu) pour éviter les générations infinies si des agents ne meurent jamais.
+Limiter à `int(config.max_seconds_per_gen * PHYSICS_RATE)` steps calculé à l'init de la scene.
+Avec la valeur par défaut de 120 s → 28 800 steps. Évite les générations infinies si des agents ne meurent jamais.
 
 ### Format fichier best brain
 
