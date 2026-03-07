@@ -13,16 +13,10 @@ import pygame
 
 from engine.world import World
 from ui.scene import Scene
+from ui import theme as T
 
-# ── Visual constants ──────────────────────────────────────────────────
-_BG_COLOR = (10, 10, 20)
+# ── Victory-specific colors ───────────────────────────────────────────
 _TITLE_COLOR = (80, 255, 100)
-_STAR_COLOR = (255, 215, 0)
-_TEXT_COLOR = (220, 220, 220)
-_HINT_COLOR = (140, 140, 160)
-_PANEL_BG = (18, 18, 32)
-_PANEL_BORDER = (50, 60, 90)
-_ACCENT_COLOR = (0, 201, 255)
 
 
 class VictoryScene(Scene):
@@ -71,7 +65,7 @@ class VictoryScene(Scene):
         """Nothing to update — static screen."""
 
     def draw(self, surface: pygame.Surface) -> None:
-        surface.fill(_BG_COLOR)
+        T.fill_bg(surface)
 
         sw = surface.get_width()
         sh = surface.get_height()
@@ -80,50 +74,49 @@ class VictoryScene(Scene):
         if self._title_font is None:
             self._title_font = pygame.font.Font(None, 56)
         if self._name_font is None:
-            self._name_font = pygame.font.Font(None, 32)
+            self._name_font = pygame.font.Font(None, 30)
         if self._hint_font is None:
-            self._hint_font = pygame.font.Font(None, 26)
+            self._hint_font = pygame.font.Font(None, T.FONT_BODY)
 
         # ── Centred victory panel ───────────────────────────────
-        panel_w, panel_h = 420, 260
+        panel_w, panel_h = 420, 240
         px = (sw - panel_w) // 2
         py = (sh - panel_h) // 2 - 20
         panel_rect = pygame.Rect(px, py, panel_w, panel_h)
-        pygame.draw.rect(surface, _PANEL_BG, panel_rect, border_radius=12)
-        pygame.draw.rect(surface, _PANEL_BORDER, panel_rect, width=1, border_radius=12)
+        T.draw_panel(surface, panel_rect)
 
-        # Star decorations "  ★  ★  ★  "
-        star_font = pygame.font.Font(None, 42)
-        stars = star_font.render("★   ★   ★", True, _STAR_COLOR)
-        surface.blit(stars, (sw // 2 - stars.get_width() // 2, py + 24))
+        # Star decorations
+        star_font = pygame.font.Font(None, 40)
+        stars = star_font.render("★   ★   ★", True, T.GOLD)
+        surface.blit(stars, (sw // 2 - stars.get_width() // 2, py + 22))
 
         # "LEVEL COMPLETE!"
         title = self._title_font.render("LEVEL COMPLETE!", True, _TITLE_COLOR)
-        surface.blit(title, (sw // 2 - title.get_width() // 2, py + 70))
+        surface.blit(title, (sw // 2 - title.get_width() // 2, py + 66))
 
         # Accent line
         line_w = 160
-        line_y = py + 70 + title.get_height() + 12
+        line_y = py + 66 + title.get_height() + 10
         pygame.draw.line(
-            surface, _ACCENT_COLOR,
+            surface, T.CYAN,
             (sw // 2 - line_w // 2, line_y),
             (sw // 2 + line_w // 2, line_y), 2,
         )
 
         # Level name
         if self._level_name:
-            name_surf = self._name_font.render(self._level_name, True, _TEXT_COLOR)
-            surface.blit(name_surf, (sw // 2 - name_surf.get_width() // 2, line_y + 16))
+            name_surf = self._name_font.render(self._level_name, True, T.TEXT)
+            surface.blit(name_surf, (sw // 2 - name_surf.get_width() // 2, line_y + 14))
 
-        # Options (inside panel, near bottom)
+        # Options
         hint = self._hint_font.render(
             "[R] Rejouer    [Enter/ESC] Sélection niveaux",
             True,
-            _HINT_COLOR,
+            T.TEXT_DIM,
         )
         surface.blit(
             hint,
-            (sw // 2 - hint.get_width() // 2, py + panel_h - 42),
+            (sw // 2 - hint.get_width() // 2, py + panel_h - 38),
         )
 
     # ------------------------------------------------------------------

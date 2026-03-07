@@ -19,23 +19,25 @@ from engine.world import TileType, World, is_spike
 # Palette — matches game_renderer.py
 # ---------------------------------------------------------------------------
 
-_SOLID_COLOR: tuple[int, int, int] = (160, 160, 160)
-_SPIKE_COLOR: tuple[int, int, int] = (255, 110, 40)
-_FINISH_COLOR: tuple[int, int, int] = (50, 220, 80)
+_SOLID_COLOR: tuple[int, int, int] = (0, 0, 0)
+_SOLID_OUTLINE: tuple[int, int, int] = (0, 160, 210)
+_SPIKE_COLOR: tuple[int, int, int] = (0, 0, 0)
+_SPIKE_OUTLINE: tuple[int, int, int] = (220, 220, 220)
+_FINISH_COLOR: tuple[int, int, int] = (255, 210, 0)
 
-_BG_COLOR:       tuple[int, int, int] = (30, 30, 30)
-_GRID_COLOR:     tuple[int, int, int] = (50, 50, 50)
-_CURSOR_COLOR:   tuple[int, int, int, int] = (255, 255, 255, 60)   # RGBA
-_CURSOR_BORDER:  tuple[int, int, int] = (255, 255, 255)
+_BG_COLOR:       tuple[int, int, int] = (12, 12, 20)
+_GRID_COLOR:     tuple[int, int, int] = (28, 28, 40)
+_CURSOR_COLOR:   tuple[int, int, int, int] = (0, 201, 255, 30)   # RGBA
+_CURSOR_BORDER:  tuple[int, int, int] = (0, 201, 255)
 
-_TOOLBAR_BG:     tuple[int, int, int] = (20, 20, 20)
-_BTN_INACTIVE:   tuple[int, int, int] = (60, 60, 60)
-_BTN_ACTIVE:     tuple[int, int, int] = (100, 180, 100)
-_BTN_PLAY:       tuple[int, int, int] = (60, 120, 200)
-_BTN_PLAY_HOT:   tuple[int, int, int] = (80, 160, 255)
-_BTN_SAVE:       tuple[int, int, int] = (200, 140, 40)
-_BTN_SAVE_HOT:   tuple[int, int, int] = (240, 180, 60)
-_TEXT_COLOR:     tuple[int, int, int] = (230, 230, 230)
+_TOOLBAR_BG:     tuple[int, int, int] = (10, 10, 18)
+_BTN_INACTIVE:   tuple[int, int, int] = (24, 24, 38)
+_BTN_ACTIVE:     tuple[int, int, int] = (0, 120, 80)
+_BTN_PLAY:       tuple[int, int, int] = (20, 50, 100)
+_BTN_PLAY_HOT:   tuple[int, int, int] = (30, 80, 150)
+_BTN_SAVE:       tuple[int, int, int] = (90, 60, 20)
+_BTN_SAVE_HOT:   tuple[int, int, int] = (140, 95, 30)
+_TEXT_COLOR:     tuple[int, int, int] = (200, 204, 215)
 
 # ---------------------------------------------------------------------------
 # Layout constants
@@ -63,8 +65,8 @@ _BTN_DELETE_IDX: int = 3
 _BTN_PLAY_IDX: int = 4
 _BTN_SAVE_IDX: int = 5
 
-_BTN_DELETE:     tuple[int, int, int] = (180, 60, 60)
-_BTN_DELETE_HOT: tuple[int, int, int] = (220, 80, 80)
+_BTN_DELETE:     tuple[int, int, int] = (100, 30, 30)
+_BTN_DELETE_HOT: tuple[int, int, int] = (150, 45, 45)
 
 
 def _spike_points_editor(
@@ -181,9 +183,11 @@ class EditorRenderer:
 
                 if tile is TileType.SOLID:
                     pygame.draw.rect(surface, _SOLID_COLOR, rect)
+                    pygame.draw.rect(surface, _SOLID_OUTLINE, rect, 2)
                 elif is_spike(tile):
                     pts = _spike_points_editor(tile, sx, sy, bs)
                     pygame.draw.polygon(surface, _SPIKE_COLOR, pts)
+                    pygame.draw.polygon(surface, _SPIKE_OUTLINE, pts, 2)
                 elif tile is TileType.FINISH:
                     bar_w = 4
                     bar_rect = pygame.Rect(sx + (bs - bar_w) // 2, sy, bar_w, bs)
@@ -248,9 +252,10 @@ class EditorRenderer:
         selected_tile_type: TileType,
         erase_mode: bool = False,
     ) -> None:
-        # Toolbar background
+        # Toolbar background + top accent line
         tb_rect = pygame.Rect(0, screen_h - _TOOLBAR_HEIGHT, screen_w, _TOOLBAR_HEIGHT)
         pygame.draw.rect(surface, _TOOLBAR_BG, tb_rect)
+        pygame.draw.line(surface, (0, 201, 255), (0, screen_h - _TOOLBAR_HEIGHT), (screen_w, screen_h - _TOOLBAR_HEIGHT), 1)
 
         font = self._get_font()
 

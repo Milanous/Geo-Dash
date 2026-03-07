@@ -11,6 +11,8 @@ import re
 
 import pygame
 
+from ui import theme as T
+
 
 # Characters accepted while typing (includes space — sanitise_name handles cleanup)
 _ALLOWED_RE = re.compile(r"^[a-zA-Z0-9 _-]$")
@@ -92,49 +94,50 @@ class SaveDialog:
 
         # Lazy font init
         if self._font is None:
-            self._font = pygame.font.Font(None, 28)
+            self._font = pygame.font.Font(None, T.FONT_BODY)
 
         # Semi-transparent backdrop
         overlay = pygame.Surface((sw, sh), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 160))
+        overlay.fill((0, 0, 0, 170))
         surface.blit(overlay, (0, 0))
 
-        # Dialog box with rounded corners
-        box_w, box_h = 440, 150
+        # Dialog box
+        box_w, box_h = 440, 148
         box_x = (sw - box_w) // 2
         box_y = (sh - box_h) // 2
-        pygame.draw.rect(surface, (30, 30, 45), (box_x, box_y, box_w, box_h), border_radius=12)
-        pygame.draw.rect(surface, (60, 70, 100), (box_x, box_y, box_w, box_h), 2, border_radius=12)
+        box_rect = pygame.Rect(box_x, box_y, box_w, box_h)
+        pygame.draw.rect(surface, T.BG_PANEL, box_rect, border_radius=T.RADIUS_LG)
+        pygame.draw.rect(surface, T.BORDER_HI, box_rect, 1, border_radius=T.RADIUS_LG)
 
-        # Title with icon
-        title = self._font.render("Nom du niveau :", True, (220, 220, 220))
+        # Title
+        title = self._font.render("Nom du niveau :", True, T.TEXT)
         surface.blit(title, (box_x + 20, box_y + 18))
 
-        # Accent line under title
+        # Accent line
         pygame.draw.line(
-            surface, (0, 201, 255),
-            (box_x + 20, box_y + 48),
-            (box_x + box_w - 20, box_y + 48), 1,
+            surface, T.CYAN,
+            (box_x + 20, box_y + 46),
+            (box_x + box_w - 20, box_y + 46), 1,
         )
 
         # Text input field
         field_x = box_x + 20
-        field_y = box_y + 62
+        field_y = box_y + 60
         field_w = box_w - 40
-        field_h = 36
-        pygame.draw.rect(surface, (20, 20, 30), (field_x, field_y, field_w, field_h), border_radius=6)
-        pygame.draw.rect(surface, (80, 80, 100), (field_x, field_y, field_w, field_h), 1, border_radius=6)
+        field_h = 34
+        pygame.draw.rect(surface, T.BG_INPUT, (field_x, field_y, field_w, field_h), border_radius=T.RADIUS_SM)
+        pygame.draw.rect(surface, T.BORDER_HI, (field_x, field_y, field_w, field_h), 1, border_radius=T.RADIUS_SM)
 
         # Typed text
-        txt_surf = self._font.render(self._text, True, (230, 230, 230))
-        surface.blit(txt_surf, (field_x + 10, field_y + 7))
+        txt_surf = self._font.render(self._text, True, T.TEXT)
+        surface.blit(txt_surf, (field_x + 10, field_y + 6))
 
         # Blinking cursor
         if self._cursor_visible:
             cx = field_x + 10 + txt_surf.get_width() + 2
-            pygame.draw.line(surface, (0, 201, 255), (cx, field_y + 6), (cx, field_y + field_h - 6), 2)
+            pygame.draw.line(surface, T.CYAN, (cx, field_y + 6), (cx, field_y + field_h - 6), 2)
 
         # Hint
-        hint_font = pygame.font.Font(None, 22)
-        hint = hint_font.render("Enter = sauvegarder   ESC = annuler", True, (100, 100, 120))
-        surface.blit(hint, (box_x + (box_w - hint.get_width()) // 2, box_y + box_h - 30))
+        hint_font = pygame.font.Font(None, T.FONT_HINT)
+        hint = hint_font.render("Enter = sauvegarder   ESC = annuler", True, T.TEXT_DIM)
+        surface.blit(hint, (box_x + (box_w - hint.get_width()) // 2, box_y + box_h - 28))

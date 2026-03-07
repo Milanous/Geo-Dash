@@ -23,22 +23,10 @@ from engine.player import Player
 from engine.world import TileType, World
 from renderer.game_renderer import GameRenderer
 from ui.scene import Scene
+from ui import theme as T
 
-# ── Visual constants ──────────────────────────────────────────────────
-_BG_COLOR = (15, 15, 25)
-_TEXT_COLOR = (220, 220, 220)
-_SELECTED_COLOR = (90, 60, 180)
-_TITLE_COLOR = (255, 255, 255)
-_SUBTITLE_COLOR = (180, 170, 210)
-_HINT_COLOR = (140, 140, 160)
-_ACCENT_COLOR = (160, 100, 255)       # Purple accent for replay theme
-_PANEL_BG = (22, 18, 35)
-_PANEL_BORDER = (50, 40, 80)
-_ENTRY_BG = (28, 22, 42)
-_LINE_HEIGHT = 44
-_TITLE_Y = 30
-_LIST_TOP = 120
-_HINT_BAR_H = 50
+# ── Replay-specific constants ─────────────────────────────────────────
+_LIST_TOP = 110
 
 _START_X: float = 5.0
 _START_Y: float = 5.0
@@ -227,107 +215,68 @@ class ReplayScene(Scene):
     # ------------------------------------------------------------------
 
     def _draw_selector(self, surface: pygame.Surface) -> None:
-        surface.fill(_BG_COLOR)
+        T.fill_bg(surface)
         sw = surface.get_width()
         sh = surface.get_height()
 
         if self._font is None:
-            self._font = pygame.font.Font(None, 28)
+            self._font = pygame.font.Font(None, T.FONT_BODY)
         if self._title_font is None:
-            self._title_font = pygame.font.Font(None, 44)
+            self._title_font = pygame.font.Font(None, T.FONT_TITLE)
         if self._hint_font is None:
-            self._hint_font = pygame.font.Font(None, 22)
+            self._hint_font = pygame.font.Font(None, T.FONT_HINT)
 
         # ── Header ─────────────────────────────────────────────────
-        title = self._title_font.render("REPLAY", True, _TITLE_COLOR)
-        surface.blit(title, (sw // 2 - title.get_width() // 2, _TITLE_Y))
-
-        # Accent line
-        line_w = 100
-        line_y = _TITLE_Y + title.get_height() + 8
-        pygame.draw.line(
-            surface, _ACCENT_COLOR,
-            (sw // 2 - line_w // 2, line_y),
-            (sw // 2 + line_w // 2, line_y), 2,
-        )
-
-        # Subtitle
-        sub_font = pygame.font.Font(None, 24)
-        sub_surf = sub_font.render("Sélection de génération", True, _SUBTITLE_COLOR)
-        surface.blit(sub_surf, (sw // 2 - sub_surf.get_width() // 2, line_y + 10))
+        T.draw_header(surface, "REPLAY", "Sélection de génération", accent=T.PURPLE)
 
         # ── List panel ─────────────────────────────────────────────
         panel_x = sw // 2 - 220
         panel_w = 440
         list_area_top = _LIST_TOP
-        list_area_bottom = sh - _HINT_BAR_H - 10
+        list_area_bottom = sh - T.HINT_BAR_H - 10
         panel_h = list_area_bottom - list_area_top
 
         panel_rect = pygame.Rect(panel_x, list_area_top, panel_w, panel_h)
-        pygame.draw.rect(surface, _PANEL_BG, panel_rect, border_radius=8)
-        pygame.draw.rect(surface, _PANEL_BORDER, panel_rect, width=1, border_radius=8)
+        T.draw_panel(surface, panel_rect)
 
         if not self._generations:
-            empty = self._font.render("Aucun brain sauvegardé", True, _HINT_COLOR)
+            empty = self._font.render("Aucun brain sauvegardé", True, T.TEXT_DIM)
             surface.blit(empty, (sw // 2 - empty.get_width() // 2, list_area_top + 30))
         else:
             inner_top = list_area_top + 10
-            max_visible = (panel_h - 20) // _LINE_HEIGHT
+            max_visible = (panel_h - 20) // T.LINE_H
             scroll = max(0, self._selected_idx - max_visible + 1)
 
             for vi, i in enumerate(range(scroll, min(scroll + max_visible, len(self._generations)))):
                 gen = self._generations[i]
-                y = inner_top + vi * _LINE_HEIGHT
+                y = inner_top + vi * T.LINE_H
 
-                card_rect = pygame.Rect(panel_x + 10, y, panel_w - 20, _LINE_HEIGHT - 6)
-
-                if i == self._selected_idx:
-                    pygame.draw.rect(surface, _SELECTED_COLOR, card_rect, border_radius=5)
-                    # Left accent bar
-                    pygame.draw.rect(
-                        surface, _ACCENT_COLOR,
-                        pygame.Rect(card_rect.x, card_rect.y, 3, card_rect.height),
-                        border_radius=2,
-                    )
-                else:
-                    pygame.draw.rect(surface, _ENTRY_BG, card_rect, border_radius=5)
+                card_rect = pygame.Rect(panel_x + 10, y, panel_w - 20, T.LINE_H - 6)
+                T.draw_card(surface, card_rect, selected=(i == self._selected_idx), accent=T.PURPLE)
 
                 label = f"Génération {gen}"
-                txt = self._font.render(label, True, _TEXT_COLOR)
+                txt = self._font.render(label, True, T.TEXT)
                 surface.blit(
                     txt,
                     (card_rect.x + 16, card_rect.y + (card_rect.height - txt.get_height()) // 2),
                 )
 
-                # Gen number badge (right side)
-                badge = self._hint_font.render(f"#{gen}", True, _ACCENT_COLOR)
+                badge = self._hint_font.render(f"#{gen}", True, T.PURPLE)
                 surface.blit(
                     badge,
                     (card_rect.right - badge.get_width() - 12,
                      card_rect.y + (card_rect.height - badge.get_height()) // 2),
                 )
 
-            # Scroll indicators
             if scroll > 0:
-                up_surf = self._hint_font.render("▲", True, _ACCENT_COLOR)
+                up_surf = self._hint_font.render("▲", True, T.PURPLE)
                 surface.blit(up_surf, (sw // 2 - up_surf.get_width() // 2, list_area_top + 2))
             if scroll + max_visible < len(self._generations):
-                dn_surf = self._hint_font.render("▼", True, _ACCENT_COLOR)
+                dn_surf = self._hint_font.render("▼", True, T.PURPLE)
                 surface.blit(dn_surf, (sw // 2 - dn_surf.get_width() // 2, list_area_bottom - 14))
 
-        # ── Footer hint bar ───────────────────────────────────────
-        footer_y = sh - _HINT_BAR_H
-        pygame.draw.rect(surface, _PANEL_BG, (0, footer_y, sw, _HINT_BAR_H))
-        pygame.draw.line(surface, _PANEL_BORDER, (0, footer_y), (sw, footer_y), 1)
-
-        hint = self._hint_font.render(
-            "[↑↓] Sélectionner  [Enter] Lancer  [ESC] Retour", True, _HINT_COLOR,
-        )
-        surface.blit(
-            hint,
-            (sw // 2 - hint.get_width() // 2,
-             footer_y + (_HINT_BAR_H - hint.get_height()) // 2),
-        )
+        # ── Footer ────────────────────────────────────────────────
+        T.draw_footer(surface, "[↑↓] Sélectionner  [Enter] Lancer  [ESC] Retour")
 
     # ------------------------------------------------------------------
     # Replay drawing (game + debug overlay)
@@ -347,10 +296,10 @@ class ReplayScene(Scene):
 
         # HUD hint
         if self._hint_font is None:
-            self._hint_font = pygame.font.Font(None, 22)
+            self._hint_font = pygame.font.Font(None, T.FONT_HINT)
         hint = self._hint_font.render(
             f"Gen {self._current_gen}  |  [R] Restart  [ESC] Retour",
-            True, _HINT_COLOR,
+            True, T.TEXT_DIM,
         )
         surface.blit(hint, (10, 10))
 
