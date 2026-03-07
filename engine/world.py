@@ -47,8 +47,11 @@ class World:
         """
         Create an empty world of *width* × *height* blocks, filled with AIR.
 
+        The grid auto-expands horizontally when set_tile is called beyond
+        the current width, so there is no hard maximum level length.
+
         Args:
-            width:  Number of columns (horizontal blocks).
+            width:  Initial number of columns (horizontal blocks).
             height: Number of rows (vertical blocks).
         """
         self.width  = width
@@ -98,6 +101,17 @@ class World:
         """
         col = int(bx)
         row = int(by)
-        if col < 0 or col >= self.width or row < 0 or row >= self.height:
+        if col < 0 or row < 0 or row >= self.height:
             return
+        if col >= self.width:
+            self._expand_width(col + 1)
         self._grid[row][col] = tile_type
+
+    def _expand_width(self, new_width: int) -> None:
+        """Grow every row so that the grid has at least *new_width* columns."""
+        extra = new_width - self.width
+        if extra <= 0:
+            return
+        for row in self._grid:
+            row.extend([TileType.AIR] * extra)
+        self.width = new_width

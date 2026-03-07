@@ -28,12 +28,15 @@ class Editor:
     - Save/Load (level_io.py — Story 3.3)
     """
 
-    def __init__(self, width: int = 100, height: int = 20) -> None:
+    def __init__(self, width: int = 10_000, height: int = 20) -> None:
         """
         Create a new editor with an empty World.
 
+        The world auto-expands horizontally beyond *width* if needed,
+        so there is no hard limit on level length.
+
         Args:
-            width:  Number of grid columns (default 100 blocks).
+            width:  Initial number of grid columns (default 10 000 blocks).
             height: Number of grid rows (default 20 blocks).
         """
         self._world: World = World(width, height)
