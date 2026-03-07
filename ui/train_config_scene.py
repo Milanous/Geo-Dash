@@ -34,25 +34,30 @@ FIELDS: list[tuple[str, str, type, int | float]] = [
 # ── Visual constants ─────────────────────────────────────────────────
 _BG_COLOR = (15, 15, 25)
 _TITLE_COLOR = (255, 255, 255)
+_SUBTITLE_COLOR = (160, 170, 200)
 _LABEL_COLOR = (200, 200, 210)
 _INPUT_BG = (30, 30, 45)
 _INPUT_ACTIVE_BG = (40, 40, 60)
 _INPUT_BORDER = (80, 80, 100)
-_INPUT_ACTIVE_BORDER = (60, 140, 255)
+_INPUT_ACTIVE_BORDER = (0, 201, 255)
 _TEXT_COLOR = (220, 220, 220)
 _ERROR_COLOR = (255, 80, 80)
-_BUTTON_COLOR = (40, 130, 80)
-_BUTTON_HOVER_COLOR = (50, 160, 100)
+_BUTTON_COLOR = (0, 160, 100)
+_BUTTON_HOVER_COLOR = (0, 200, 130)
 _BUTTON_TEXT_COLOR = (255, 255, 255)
+_ACCENT_COLOR = (0, 201, 255)
+_PANEL_BG = (20, 20, 35)
+_PANEL_BORDER = (40, 50, 80)
+_HINT_COLOR = (140, 140, 160)
 
-_FIELD_START_Y = 100
-_FIELD_SPACING = 50
-_LABEL_X = 120
+_FIELD_START_Y = 130
+_FIELD_SPACING = 46
+_LABEL_X = 140
 _INPUT_X = 420
 _INPUT_W = 200
 _INPUT_H = 34
-_BUTTON_W = 220
-_BUTTON_H = 44
+_BUTTON_W = 240
+_BUTTON_H = 48
 _BUTTON_MARGIN_BOTTOM = 60
 
 # Allowed characters for numeric input
@@ -123,15 +128,39 @@ class TrainConfigScene(Scene):
         if self._font is None:
             self._font = pygame.font.Font(None, 28)
         if self._title_font is None:
-            self._title_font = pygame.font.Font(None, 40)
+            self._title_font = pygame.font.Font(None, 44)
         if self._small_font is None:
             self._small_font = pygame.font.Font(None, 22)
 
-        # Title
+        # ── Header ─────────────────────────────────────────────────
         title_surf = self._title_font.render(
             "AI Training Configuration", True, _TITLE_COLOR,
         )
-        surface.blit(title_surf, (sw // 2 - title_surf.get_width() // 2, 36))
+        surface.blit(title_surf, (sw // 2 - title_surf.get_width() // 2, 28))
+
+        # Accent line
+        line_w = 160
+        line_y = 28 + title_surf.get_height() + 8
+        pygame.draw.line(
+            surface, _ACCENT_COLOR,
+            (sw // 2 - line_w // 2, line_y),
+            (sw // 2 + line_w // 2, line_y), 2,
+        )
+
+        # Subtitle with level name
+        sub_font = pygame.font.Font(None, 22)
+        sub_text = f"Niveau : {self._level_name}" if self._level_name else "Configuration des hyperparamètres"
+        sub_surf = sub_font.render(sub_text, True, _SUBTITLE_COLOR)
+        surface.blit(sub_surf, (sw // 2 - sub_surf.get_width() // 2, line_y + 10))
+
+        # ── Form panel ─────────────────────────────────────────────
+        panel_x = 80
+        panel_w = sw - 160
+        panel_top = _FIELD_START_Y - 16
+        panel_h = len(FIELDS) * _FIELD_SPACING + 30
+        panel_rect = pygame.Rect(panel_x, panel_top, panel_w, panel_h)
+        pygame.draw.rect(surface, _PANEL_BG, panel_rect, border_radius=10)
+        pygame.draw.rect(surface, _PANEL_BORDER, panel_rect, width=1, border_radius=10)
 
         # Fields
         self._field_rects.clear()
@@ -150,20 +179,20 @@ class TrainConfigScene(Scene):
             bg = _INPUT_ACTIVE_BG if is_active else _INPUT_BG
             border = _INPUT_ACTIVE_BORDER if is_active else _INPUT_BORDER
 
-            pygame.draw.rect(surface, bg, rect, border_radius=4)
-            pygame.draw.rect(surface, border, rect, width=2, border_radius=4)
+            pygame.draw.rect(surface, bg, rect, border_radius=6)
+            pygame.draw.rect(surface, border, rect, width=2, border_radius=6)
 
             # Value text
             val_surf = self._font.render(self.values[attr], True, _TEXT_COLOR)
-            surface.blit(val_surf, (rect.x + 8, rect.y + 6))
+            surface.blit(val_surf, (rect.x + 10, rect.y + 6))
 
         # Error message
         if self.error_msg:
             err_surf = self._small_font.render(self.error_msg, True, _ERROR_COLOR)
-            err_y = _FIELD_START_Y + len(FIELDS) * _FIELD_SPACING + 10
+            err_y = panel_top + panel_h + 12
             surface.blit(err_surf, (sw // 2 - err_surf.get_width() // 2, err_y))
 
-        # Launch button
+        # ── Launch button ──────────────────────────────────────────
         sh = surface.get_height()
         btn_x = sw // 2 - _BUTTON_W // 2
         btn_y = sh - _BUTTON_MARGIN_BOTTOM - _BUTTON_H
@@ -173,13 +202,20 @@ class TrainConfigScene(Scene):
         mouse_pos = pygame.mouse.get_pos()
         hover = btn_rect.collidepoint(mouse_pos)
         color = _BUTTON_HOVER_COLOR if hover else _BUTTON_COLOR
-        pygame.draw.rect(surface, color, btn_rect, border_radius=6)
+        pygame.draw.rect(surface, color, btn_rect, border_radius=8)
 
-        btn_txt = self._font.render("Launch Training", True, _BUTTON_TEXT_COLOR)
+        btn_txt = self._font.render("▶  Lancer l'entraînement", True, _BUTTON_TEXT_COLOR)
         surface.blit(
             btn_txt,
             (btn_rect.centerx - btn_txt.get_width() // 2,
              btn_rect.centery - btn_txt.get_height() // 2),
+        )
+
+        # Hint
+        hint_surf = self._small_font.render("[ESC] Retour   [Entrée] Lancer", True, _HINT_COLOR)
+        surface.blit(
+            hint_surf,
+            (sw // 2 - hint_surf.get_width() // 2, sh - 24),
         )
 
     # ------------------------------------------------------------------
