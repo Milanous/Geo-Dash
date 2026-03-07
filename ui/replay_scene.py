@@ -17,6 +17,7 @@ import pygame
 
 from ai.brain import Brain
 from ai.neuron import DX_MIN, DX_MAX, DY_MIN, DY_MAX
+from ai.neuron import Neuron
 from engine.camera import Camera
 from engine.player import Player
 from engine.world import TileType, World
@@ -381,9 +382,10 @@ class ReplayScene(Scene):
         for net_idx, net in enumerate(self._brain.networks):
             net_color = _NETWORK_COLORS[net_idx % len(_NETWORK_COLORS)]
 
-            # Compute screen positions + active state for each neuron
+            # Compute screen positions + active state + type for each neuron
             positions: list[tuple[int, int]] = []
             actives: list[bool] = []
+            neurons_ref: list[Neuron] = []
             for neuron in net.neurons:
                 sx = int(
                     World.to_px(self._player.state.x + neuron.dx)
@@ -394,6 +396,7 @@ class ReplayScene(Scene):
                 actives.append(neuron.is_active(
                     self._player.state.x, self._player.state.y, self._world,
                 ))
+                neurons_ref.append(neuron)
 
             # Central hub = average position of all neurons in the network
             if positions:
@@ -409,11 +412,26 @@ class ReplayScene(Scene):
                 line_color = (*(_NEURON_GREEN if active else _NEURON_RED), _NETWORK_LINE_ALPHA)
                 pygame.draw.line(line_surf, line_color, pos, hub, _NETWORK_LINE_WIDTH)
 
-            # Draw neuron dots
-            for pos, active in zip(positions, actives):
+            # Draw neuron shapes (circle=AIR, square=SOLID, triangle=SPIKE)
+            for pos, active, nrn in zip(positions, actives, neurons_ref):
                 dot_color = _NEURON_GREEN if active else _NEURON_RED
-                pygame.draw.circle(surface, net_color, pos, _NEURON_RADIUS + 2)
-                pygame.draw.circle(surface, dot_color, pos, _NEURON_RADIUS)
+                sx, sy = pos
+                r = _NEURON_RADIUS
+                ro = r + 2  # outer shape (network color border)
+                if nrn.type == TileType.AIR:
+                    pygame.draw.circle(surface, net_color, pos, ro)
+                    pygame.draw.circle(surface, dot_color, pos, r)
+                elif nrn.type == TileType.SOLID:
+                    pygame.draw.rect(surface, net_color,
+                                     (sx - ro, sy - ro, ro * 2, ro * 2))
+                    pygame.draw.rect(surface, dot_color,
+                                     (sx - r, sy - r, r * 2, r * 2))
+                else:
+                    # Triangle for all spike types
+                    outer = [(sx, sy - ro), (sx - ro, sy + ro), (sx + ro, sy + ro)]
+                    inner = [(sx, sy - r), (sx - r, sy + r), (sx + r, sy + r)]
+                    pygame.draw.polygon(surface, net_color, outer)
+                    pygame.draw.polygon(surface, dot_color, inner)
 
             # Draw central hub — lights up in network color when firing
             if network_fires:
