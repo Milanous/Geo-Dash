@@ -1,6 +1,6 @@
 # Story 5.2: Fitness Evaluation
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,15 +18,15 @@ So that better agents can be identified and selected.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — Améliorer `PopulationSim` dans `ai/simulation.py`
-  - [ ] 1.1 Ajouter `self.max_x: np.ndarray` — array de shape `(n,)` initialisé à `self.x.copy()`, mis à jour à chaque step : `self.max_x = np.maximum(self.max_x, self.x)`
-  - [ ] 1.2 `fitness(self) -> np.ndarray` retourne `self.max_x.copy()` (distance max atteinte, pas la position courante)
-  - [ ] 1.3 Agents qui atteignent `world.width` → leur fitness est capée à `world.width` et leur `alive[i]` peut rester True (fin de niveau)
-- [ ] Task 2 — Ajouter tests dans `tests/test_evolution.py`
-  - [ ] 2.1 Test : `fitness()` après 0 steps retourne les positions initiales
-  - [ ] 2.2 Test : si un agent avance puis meurt, `fitness()` retourne sa position max (pas sa position de mort si elle est plus faible)
-  - [ ] 2.3 Test : `fitness()` est pure — deux appels successifs retournent le même résultat
-  - [ ] 2.4 Test : agent mort au départ → fitness ≈ position initiale (5.0)
+- [x] Task 1 — Améliorer `PopulationSim` dans `ai/simulation.py`
+  - [x] 1.1 Ajouter `self.max_x: np.ndarray` — array de shape `(n,)` initialisé à `self.x.copy()`, mis à jour à chaque step : `self.max_x = np.maximum(self.max_x, self.x)`
+  - [x] 1.2 `fitness(self) -> np.ndarray` retourne `self.max_x.copy()` (distance max atteinte, pas la position courante)
+  - [x] 1.3 Agents qui atteignent `world.width` → leur fitness est capée à `world.width` et leur `alive[i]` peut rester True (fin de niveau)
+- [x] Task 2 — Ajouter tests dans `tests/test_evolution.py`
+  - [x] 2.1 Test : `fitness()` après 0 steps retourne les positions initiales
+  - [x] 2.2 Test : si un agent avance puis meurt, `fitness()` retourne sa position max (pas sa position de mort si elle est plus faible)
+  - [x] 2.3 Test : `fitness()` est pure — deux appels successifs retournent le même résultat
+  - [x] 2.4 Test : agent mort au départ → fitness ≈ position initiale (5.0)
 
 ## Dev Notes
 
@@ -49,11 +49,18 @@ Story 5.1 livre `fitness() = self.x.copy()`. Cette story **remplace** cette impl
 ## Dev Agent Record
 
 ### Agent Model Used
-_À remplir_
+Claude Opus 4.6 (Amelia — Dev Agent)
 
 ### Debug Log References
+Aucun bug rencontré.
 
 ### Completion Notes List
+- `self.max_x` ajouté dans `__init__`, initialisé à `self.x.copy()`
+- `step()` met à jour `max_x` via `np.maximum(self.max_x, self.x, out=self.max_x)` (optimisé sans allocation mémoire) puis cap à `level.width`
+- `fitness()` retourne `self.max_x.copy()` au lieu de `self.x.copy()`
+- Test existant `test_fitness_returns_x_copy` mis à jour pour comparer avec `max_x`
+- 5 nouvelles classes de test ajoutées (6 tests) : zero-steps, max-position (strict validation), purity, dead-at-start, capped-at-width (AC2 fix)
+- 237/237 tests passent, 0 régression
 
 ### File List
 

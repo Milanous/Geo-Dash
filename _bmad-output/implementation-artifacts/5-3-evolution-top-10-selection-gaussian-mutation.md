@@ -1,6 +1,6 @@
 # Story 5.3: Evolution — Top-10 Selection & Gaussian Mutation
 
-Status: ready-for-dev
+Status: complete
 
 ## Story
 
@@ -21,27 +21,27 @@ So that each generation improves on the previous one.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ai/evolution.py` : fonctions `select_top_n` et `mutate`
-  - [ ] 1.1 `select_top_n(brains: list[Brain], fitness: np.ndarray, n: int) -> list[Brain]`
+- [x] Task 1 — `ai/evolution.py` : fonctions `select_top_n` et `mutate`
+  - [x] 1.1 `select_top_n(brains: list[Brain], fitness: np.ndarray, n: int) -> list[Brain]`
     - Utiliser `np.argsort(fitness)[::-1][:n]` pour les indices top-n
     - Retourner la liste des cerveaux correspondants (pas de valeur par défaut — le caller passe `config.top_n`)
-  - [ ] 1.2 `mutate(brain: Brain, config: TrainingConfig) -> Brain`
+  - [x] 1.2 `mutate(brain: Brain, config: TrainingConfig) -> Brain`
     - Copie profonde du brain (ne PAS muter l'original — `copy.deepcopy`)
     - Tirage `r = random.random()` pour choisir le type de mutation :
       - `r < config.p_move` → déplacer 1–3 neurones aléatoires : `neuron.dx += np.random.normal(0, config.mutation_sigma)`, même pour `dy`
       - `r < config.p_move + config.p_neuron` → ajouter ou supprimer un neurone d'un réseau aléatoire (supprimer seulement si le réseau a > 1 neurone)
       - sinon → ajouter ou supprimer un réseau entier (supprimer seulement si len(networks) > 1)
     - Garantir que le résultat a au moins 1 réseau avec au moins 1 neurone
-  - [ ] 1.3 `generate_random_brain(n_networks: int = 2, neurons_per_network: int = 3) -> Brain` — helper pour créer des cerveaux aléatoires initiaux
-  - [ ] 1.4 ZERO import `pygame`
-- [ ] Task 2 — Ajouter tests dans `tests/test_evolution.py`
-  - [ ] 2.1 Test : `select_top_n` retourne exactement `n` cerveaux
-  - [ ] 2.2 Test : les cerveaux retournés sont ceux avec le meilleur fitness
-  - [ ] 2.3 Test : `mutate` retourne un objet différent (pas la même référence)
-  - [ ] 2.4 Test : le brain original est inchangé après `mutate`
-  - [ ] 2.5 Test : `mutate` retourne un Brain avec au moins 1 réseau
-  - [ ] 2.6 Test : `mutate` retourne un Brain avec au moins 1 neurone dans chaque réseau
-  - [ ] 2.7 Test : `generate_random_brain` retourne un Brain valide
+  - [x] 1.3 `generate_random_brain(n_networks: int = 2, neurons_per_network: int = 3) -> Brain` — helper pour créer des cerveaux aléatoires initiaux
+  - [x] 1.4 ZERO import `pygame`
+- [x] Task 2 — Ajouter tests dans `tests/test_evolution.py`
+  - [x] 2.1 Test : `select_top_n` retourne exactement `n` cerveaux
+  - [x] 2.2 Test : les cerveaux retournés sont ceux avec le meilleur fitness
+  - [x] 2.3 Test : `mutate` retourne un objet différent (pas la même référence)
+  - [x] 2.4 Test : le brain original est inchangé après `mutate`
+  - [x] 2.5 Test : `mutate` retourne un Brain avec au moins 1 réseau
+  - [x] 2.6 Test : `mutate` retourne un Brain avec au moins 1 neurone dans chaque réseau
+  - [x] 2.7 Test : `generate_random_brain` retourne un Brain valide
 
 ## Dev Notes
 
@@ -72,11 +72,18 @@ ai/evolution.py  →  ne peut PAS importer renderer/, pygame
 ## Dev Agent Record
 
 ### Agent Model Used
-_À remplir_
+Claude Opus 4.6
 
 ### Debug Log References
+None — all tests passed on first run (27/27 evolution tests, 250/250 full suite).
 
 ### Completion Notes List
+- `select_top_n`: uses `np.argsort` descending, returns original brain references (no copy)
+- `mutate`: deep-copies brain, 3-branch mutation (move/neuron/network) per config probabilities
+- `_mutate_neuron` only removes if net has >1 neuron, else adds
+- `_mutate_network` only removes if brain has >1 network, else adds
+- `generate_random_brain`: dx/dy ∈ [-3,3], polarity ∈ {green,red}, type ∈ {SOLID,SPIKE}
+- Neuron positions remain float after mutation (no grid snapping)
 
 ### File List
 

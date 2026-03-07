@@ -39,6 +39,7 @@ class PopulationSim:
         self.y: np.ndarray = np.full(n, 2.0)
         self.vy: np.ndarray = np.zeros(n)
         self.alive: np.ndarray = np.ones(n, dtype=bool)
+        self.max_x: np.ndarray = self.x.copy()
 
     # ------------------------------------------------------------------
     # Public API
@@ -59,6 +60,12 @@ class PopulationSim:
         self.y = np.maximum(self.y, 0.0)
         np.putmask(self.vy, self.y == 0.0, 0.0)
 
+        # Track maximum X reached
+        np.maximum(self.max_x, self.x, out=self.max_x)
+
+        # Cap at level width
+        np.minimum(self.max_x, float(self.level.width), out=self.max_x)
+
         # Spike collision
         self._resolve_spikes()
 
@@ -66,8 +73,8 @@ class PopulationSim:
         self._evaluate_brains()
 
     def fitness(self) -> np.ndarray:
-        """Return fitness array — distance travelled (x position)."""
-        return self.x.copy()
+        """Return fitness array — max distance reached per agent."""
+        return self.max_x.copy()
 
     # ------------------------------------------------------------------
     # Private helpers
