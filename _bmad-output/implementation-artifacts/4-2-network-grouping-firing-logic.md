@@ -1,6 +1,6 @@
 # Story 4.2: Network — Grouping & Firing Logic
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

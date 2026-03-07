@@ -1,6 +1,6 @@
 # Story 4.3: Brain — Genome & JSON Serialization
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

@@ -1,6 +1,6 @@
 # Story 4.1: Neuron — Definition, Sensing & Tests
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

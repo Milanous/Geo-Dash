@@ -1,6 +1,6 @@
 # Story 5.1: PopulationSim — NumPy Vectorised Simulation
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -20,29 +20,29 @@ So that a full generation completes in under 60 seconds.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ai/simulation.py` : class `PopulationSim`
-  - [ ] 1.1 `__init__(self, brains: list[Brain], level: World, config: TrainingConfig)` — initialise les arrays NumPy : `x`, `y`, `vy` de shape `(n,)` float64 ; `alive` de shape `(n,)` bool
+- [x] Task 1 — `ai/simulation.py` : class `PopulationSim`
+  - [x] 1.1 `__init__(self, brains: list[Brain], level: World, config: TrainingConfig)` — initialise les arrays NumPy : `x`, `y`, `vy` de shape `(n,)` float64 ; `alive` de shape `(n,)` bool
     - `self.config = config`
     - `self.max_steps = int(config.max_seconds_per_gen * PHYSICS_RATE)`
-  - [ ] 1.2 `step(self, dt: float) -> None`
+  - [x] 1.2 `step(self, dt: float) -> None`
     - Gravité vectorisée : `self.vy[self.alive] += GRAVITY * dt` *(attention : `GRAVITY` est négatif dans le projet — `vy` diminue)*
     - Position Y : `self.y[self.alive] += self.vy[self.alive] * dt`
     - Position X : `self.x[self.alive] += PLAYER_SPEED * dt`
     - Sol clamp : `self.y = np.maximum(self.y, 0.0)` ; si `y[i]` était < 0 → `vy[i] = 0`
     - Détection spike : `_resolve_spikes()` — vectorisée autant que possible
     - Évaluation cerveaux : `_evaluate_brains()` — boucle Python sur `np.where(self.alive)[0]`
-  - [ ] 1.3 `_resolve_spikes(self) -> None` — pour chaque agent alive, vérifier la tile à `(x[i], y[i])` ; si SPIKE → `alive[i] = False`
-  - [ ] 1.4 `_evaluate_brains(self) -> None` — pour chaque agent alive, appeler `brain.should_jump(x[i], y[i], level)` ; si True → `vy[i] = JUMP_VELOCITY`
-  - [ ] 1.5 `fitness(self) -> np.ndarray` — retourne `self.x.copy()` (distance = fitness)
-  - [ ] 1.6 ZERO import `pygame`
-- [ ] Task 2 — `tests/test_evolution.py` : tests headless
-  - [ ] 2.1 Test : `PopulationSim` initialise arrays de bonne forme
-  - [ ] 2.2 Test : agents morts ne se déplacent pas après `step()`
-  - [ ] 2.3 Test : agent vivant avance de `PLAYER_SPEED * dt` en X à chaque step
-  - [ ] 2.4 Test : agent touche SPIKE → `alive=False`
-  - [ ] 2.5 Test : `fitness()` retourne les positions X courantes
-  - [ ] 2.6 Test benchmark : 1 000 agents × 7 200 steps (30 s de jeu simulé avec config par défaut) < 60 s
-  - [ ] 2.7 Test : import guard — `simulation.py` n'importe pas `pygame`
+  - [x] 1.3 `_resolve_spikes(self) -> None` — pour chaque agent alive, vérifier la tile à `(x[i], y[i])` ; si SPIKE → `alive[i] = False`
+  - [x] 1.4 `_evaluate_brains(self) -> None` — pour chaque agent alive, appeler `brain.should_jump(x[i], y[i], level)` ; si True → `vy[i] = JUMP_VELOCITY`
+  - [x] 1.5 `fitness(self) -> np.ndarray` — retourne `self.x.copy()` (distance = fitness)
+  - [x] 1.6 ZERO import `pygame`
+- [x] Task 2 — `tests/test_evolution.py` : tests headless
+  - [x] 2.1 Test : `PopulationSim` initialise arrays de bonne forme
+  - [x] 2.2 Test : agents morts ne se déplacent pas après `step()`
+  - [x] 2.3 Test : agent vivant avance de `PLAYER_SPEED * dt` en X à chaque step
+  - [x] 2.4 Test : agent touche SPIKE → `alive=False`
+  - [x] 2.5 Test : `fitness()` retourne les positions X courantes
+  - [x] 2.6 Test benchmark : 1 000 agents × 7 200 steps (30 s de jeu simulé avec config par défaut) < 60 s
+  - [x] 2.7 Test : import guard — `simulation.py` n'importe pas `pygame`
 
 ## Dev Notes
 
@@ -113,13 +113,23 @@ tests/
 ## Dev Agent Record
 
 ### Agent Model Used
-_À remplir_
+Claude Opus 4.6
 
 ### Debug Log References
+- Spike test: agent falls to y=0 before reaching spike at y=2 → moved spike to floor level (row 0)
+- Import guard: docstring containing "import pygame" text triggered false positive → switched to AST-based check
+- np.False_ identity: `np.False_ is False` returns False → use `not sim.alive[0]` instead
 
 ### Completion Notes List
+- Stories 4.1-4.3 (neuron, network, brain) implemented as prerequisites — they were not yet in the codebase
+- All 290 tests pass with 0 regressions
+- Benchmark: 1000 agents × 7200 steps completes in ~5s
 
 ### File List
 
+- `ai/neuron.py` (nouveau — prerequisite 4.1)
+- `ai/network.py` (nouveau — prerequisite 4.2)
+- `ai/brain.py` (nouveau — prerequisite 4.3)
 - `ai/simulation.py` (nouveau)
+- `tests/test_brain.py` (nouveau — tests 4.1-4.3)
 - `tests/test_evolution.py` (nouveau)
