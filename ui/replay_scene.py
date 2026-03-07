@@ -31,7 +31,7 @@ _LIST_TOP = 110
 _START_X: float = 5.0
 _START_Y: float = 5.0
 
-_NEURON_RADIUS: int = 4
+_NEURON_RADIUS: int = 14
 _NEURON_GREEN = (0, 255, 0)
 _NEURON_RED = (255, 0, 0)
 _HUB_RADIUS: int = 7
@@ -366,21 +366,15 @@ class ReplayScene(Scene):
                 dot_color = _NEURON_GREEN if active else _NEURON_RED
                 sx, sy = pos
                 r = _NEURON_RADIUS
-                ro = r + 2  # outer shape (network color border)
                 if nrn.type == TileType.AIR:
-                    pygame.draw.circle(surface, net_color, pos, ro)
-                    pygame.draw.circle(surface, dot_color, pos, r)
+                    pygame.draw.circle(surface, dot_color, pos, r, 2)
                 elif nrn.type == TileType.SOLID:
-                    pygame.draw.rect(surface, net_color,
-                                     (sx - ro, sy - ro, ro * 2, ro * 2))
                     pygame.draw.rect(surface, dot_color,
-                                     (sx - r, sy - r, r * 2, r * 2))
+                                     (sx - r, sy - r, r * 2, r * 2), 2)
                 else:
                     # Triangle for all spike types
-                    outer = [(sx, sy - ro), (sx - ro, sy + ro), (sx + ro, sy + ro)]
-                    inner = [(sx, sy - r), (sx - r, sy + r), (sx + r, sy + r)]
-                    pygame.draw.polygon(surface, net_color, outer)
-                    pygame.draw.polygon(surface, dot_color, inner)
+                    pts = [(sx, sy - r), (sx - r, sy + r), (sx + r, sy + r)]
+                    pygame.draw.polygon(surface, dot_color, pts, 2)
 
             # Draw central hub — lights up in network color when firing
             if network_fires:
