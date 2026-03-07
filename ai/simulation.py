@@ -14,7 +14,7 @@ import numpy as np
 
 from ai.brain import Brain
 from ai.training_config import TrainingConfig
-from engine.physics import GRAVITY, JUMP_VELOCITY, PLAYER_SPEED, PHYSICS_RATE, SPIKE_HITBOX_SHRINK
+from engine.physics import GRAVITY, JUMP_VELOCITY, PLAYER_SPEED, PHYSICS_RATE, SPIKE_HITBOX_SHRINK, SPAWN_X, SPAWN_Y
 from engine.world import TileType, World, is_spike
 
 
@@ -35,8 +35,8 @@ class PopulationSim:
         self.max_steps = int(config.max_seconds_per_gen * PHYSICS_RATE)
 
         # NumPy state arrays — shape (n,)
-        self.x: np.ndarray = np.full(n, 5.0)
-        self.y: np.ndarray = np.full(n, 2.0)
+        self.x: np.ndarray = np.full(n, SPAWN_X)
+        self.y: np.ndarray = np.full(n, SPAWN_Y)
         self.vy: np.ndarray = np.zeros(n)
         self.on_ground: np.ndarray = np.zeros(n, dtype=bool)
         self.alive: np.ndarray = np.ones(n, dtype=bool)

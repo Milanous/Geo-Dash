@@ -12,6 +12,7 @@ from __future__ import annotations
 import pygame
 
 from engine.camera import Camera
+from engine.physics import SPAWN_X, SPAWN_Y
 from engine.player import Player
 from engine.world import TileType, World
 from renderer.game_renderer import GameRenderer
@@ -19,8 +20,8 @@ from renderer.vfx import VFXSystem
 from ui.scene import Scene
 
 # Starting position (in block coordinates)
-_START_X: float = 5.0
-_START_Y: float = 5.0
+_START_X: float = SPAWN_X
+_START_Y: float = SPAWN_Y
 
 # Fallback hardcoded level dimensions (used when no .gmd is supplied)
 _WORLD_WIDTH: int = 200

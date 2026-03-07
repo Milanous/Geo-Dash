@@ -59,6 +59,12 @@ vertical hitbox by at least this amount to trigger a kill.
 ~0.22 blocks ≈ 6.6 pixels de tolérance sur les angles des murs.
 """
 
+SPAWN_X: float = 5.0
+"""Default horizontal spawn position in blocks."""
+
+SPAWN_Y: float = 5.0
+"""Default vertical spawn position in blocks (must be above floor)."""
+
 
 # ---------------------------------------------------------------------------
 # Player state
