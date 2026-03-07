@@ -1,0 +1,298 @@
+"""
+ui/replay_scene.py — Best-agent replay scene (Story 5.6).
+
+Scans data/brains/ for gen_NNN_best.json files, lets the user pick a
+generation, then replays the best brain at 60 FPS with neuron debug overlay.
+
+Import rules: ui/ may import ai/, engine/, renderer/, pygame.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+import pygame
+
+from ai.brain import Brain
+from engine.camera import Camera
+from engine.player import Player
+from engine.world import TileType, World
+from renderer.game_renderer import GameRenderer
+from ui.scene import Scene
+
+# ── Visual constants ──────────────────────────────────────────────────
+_BG_COLOR = (15, 15, 25)
+_TEXT_COLOR = (220, 220, 220)
+_SELECTED_COLOR = (60, 120, 200)
+_TITLE_COLOR = (255, 255, 255)
+_HINT_COLOR = (140, 140, 160)
+_LINE_HEIGHT = 36
+_TITLE_Y = 40
+_LIST_TOP = 100
+
+_START_X: float = 5.0
+_START_Y: float = 5.0
+
+_NEURON_RADIUS: int = 4
+_NEURON_GREEN = (0, 255, 0)
+_NEURON_RED = (255, 0, 0)
+_JUMP_GLOW_COLOR = (255, 255, 100)
+_JUMP_GLOW_RADIUS: int = 20
+_JUMP_GLOW_DURATION: float = 0.1
+
+_GEN_PATTERN = re.compile(r"^gen_(\d+)_best\.json$")
+
+_DEFAULT_BRAINS_DIR: str = "data/brains"
+
+
+class ReplayScene(Scene):
+    """Best-agent replay: generation selector + single-brain simulation."""
+
+    def __init__(
+        self,
+        world: World,
+        return_scene: Scene | None = None,
+        brains_dir: str = _DEFAULT_BRAINS_DIR,
+    ) -> None:
+        super().__init__()
+        self._world = world
+        self._return_scene = return_scene
+        self._brains_dir = brains_dir
+        self._generations = self._scan_generations()
+        self._selected_idx: int = 0
+
+        # Runtime state (set when a generation is selected)
+        self._brain: Brain | None = None
+        self._player: Player | None = None
+        self._camera: Camera | None = None
+        self._renderer: GameRenderer | None = None
+        self._current_gen: int | None = None
+        self._prev_should_jump: bool = False
+
+        # Jump glow timer
+        self._glow_timer: float = 0.0
+
+        # Lazy fonts
+        self._font: pygame.font.Font | None = None
+        self._title_font: pygame.font.Font | None = None
+        self._hint_font: pygame.font.Font | None = None
+
+    # ------------------------------------------------------------------
+    # Generation scanning
+    # ------------------------------------------------------------------
+
+    def _scan_generations(self) -> list[int]:
+        """Return sorted list of generation numbers found in brains_dir."""
+        folder = Path(self._brains_dir)
+        if not folder.is_dir():
+            return []
+        gens: list[int] = []
+        for f in folder.iterdir():
+            m = _GEN_PATTERN.match(f.name)
+            if m:
+                gens.append(int(m.group(1)))
+        gens.sort()
+        return gens
+
+    # ------------------------------------------------------------------
+    # Brain loading
+    # ------------------------------------------------------------------
+
+    def _load_gen(self, gen_num: int) -> None:
+        """Load brain for *gen_num* and reset player / camera."""
+        path = Path(self._brains_dir) / f"gen_{gen_num:03d}_best.json"
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            self._brain = Brain.from_json(data)
+            self._player = Player(start_x=_START_X, start_y=_START_Y)
+            self._camera = Camera()
+            self._renderer = GameRenderer()
+            self._current_gen = gen_num
+            self._glow_timer = 0.0
+            self._prev_should_jump = False
+        except (ValueError, json.JSONDecodeError, FileNotFoundError) as e:
+            print(f"Error loading {path.name}: {e}")
+            self._brain = None
+
+    # ------------------------------------------------------------------
+    # Scene interface
+    # ------------------------------------------------------------------
+
+    def handle_events(self) -> bool:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if self._brain is not None:
+                        # If replaying → back to gen selector
+                        self._brain = None
+                        self._player = None
+                        self._camera = None
+                        self._renderer = None
+                        self._current_gen = None
+                        return True
+                    # If on selector → return to caller
+                    if self._return_scene is not None:
+                        self.next_scene = self._return_scene
+                        return True
+                    return False
+
+                if event.key == pygame.K_r and self._current_gen is not None:
+                    self._load_gen(self._current_gen)
+                    return True
+
+                # Selector mode
+                if self._brain is None:
+                    if event.key == pygame.K_UP and self._selected_idx > 0:
+                        self._selected_idx -= 1
+                    elif (
+                        event.key == pygame.K_DOWN
+                        and self._selected_idx < len(self._generations) - 1
+                    ):
+                        self._selected_idx += 1
+                    elif event.key == pygame.K_RETURN and self._generations:
+                        self._load_gen(self._generations[self._selected_idx])
+
+        return True
+
+    def update(self, dt: float) -> None:
+        if self._brain is None or self._player is None or self._camera is None:
+            return
+
+        if not self._player.alive or self._player.state.finished:
+            return
+
+        # Evaluate brain and trigger jump
+        should = self._brain.should_jump(
+            self._player.state.x, self._player.state.y, self._world,
+        )
+
+        # Trigger glow on rising edge (False -> True) regardless of on_ground
+        if should and not self._prev_should_jump:
+            self._glow_timer = _JUMP_GLOW_DURATION
+        self._prev_should_jump = should
+
+        if should and self._player.state.on_ground:
+            self._player.jump()
+
+        self._player.update(dt, self._world)
+        self._camera.follow(self._player.state.x)
+
+        # Tick glow timer
+        if self._glow_timer > 0.0:
+            self._glow_timer -= dt
+
+    def draw(self, surface: pygame.Surface) -> None:
+        if self._brain is None:
+            self._draw_selector(surface)
+        else:
+            self._draw_replay(surface)
+
+    # ------------------------------------------------------------------
+    # Selector drawing
+    # ------------------------------------------------------------------
+
+    def _draw_selector(self, surface: pygame.Surface) -> None:
+        surface.fill(_BG_COLOR)
+        sw = surface.get_width()
+
+        if self._font is None:
+            self._font = pygame.font.Font(None, 28)
+        if self._title_font is None:
+            self._title_font = pygame.font.Font(None, 40)
+        if self._hint_font is None:
+            self._hint_font = pygame.font.Font(None, 22)
+
+        title = self._title_font.render("Replay — Select Generation", True, _TITLE_COLOR)
+        surface.blit(title, (sw // 2 - title.get_width() // 2, _TITLE_Y))
+
+        if not self._generations:
+            empty = self._font.render("Aucun brain sauvegardé", True, _HINT_COLOR)
+            surface.blit(empty, (sw // 2 - empty.get_width() // 2, _LIST_TOP))
+        else:
+            for i, gen in enumerate(self._generations):
+                y = _LIST_TOP + i * _LINE_HEIGHT
+                if i == self._selected_idx:
+                    bar = pygame.Rect(sw // 2 - 200, y - 2, 400, _LINE_HEIGHT)
+                    pygame.draw.rect(surface, _SELECTED_COLOR, bar, border_radius=4)
+                label = f"Generation {gen}"
+                txt = self._font.render(label, True, _TEXT_COLOR)
+                surface.blit(txt, (sw // 2 - txt.get_width() // 2, y + 4))
+
+        hint = self._hint_font.render(
+            "[↑↓] Sélectionner  [Enter] Lancer  [ESC] Retour", True, _HINT_COLOR,
+        )
+        surface.blit(
+            hint,
+            (sw // 2 - hint.get_width() // 2, surface.get_height() - 30),
+        )
+
+    # ------------------------------------------------------------------
+    # Replay drawing (game + debug overlay)
+    # ------------------------------------------------------------------
+
+    def _draw_replay(self, surface: pygame.Surface) -> None:
+        assert self._renderer is not None
+        assert self._player is not None
+        assert self._camera is not None
+        assert self._brain is not None
+
+        self._renderer.draw(surface, self._world, self._player, self._camera)
+
+        # Debug overlay: neuron dots + jump glow
+        self._draw_neuron_overlay(surface)
+
+        # HUD hint
+        if self._hint_font is None:
+            self._hint_font = pygame.font.Font(None, 22)
+        hint = self._hint_font.render(
+            f"Gen {self._current_gen}  |  [R] Restart  [ESC] Retour",
+            True, _HINT_COLOR,
+        )
+        surface.blit(hint, (10, 10))
+
+    def _draw_neuron_overlay(self, surface: pygame.Surface) -> None:
+        assert self._player is not None
+        assert self._camera is not None
+        assert self._brain is not None
+
+        screen_h = surface.get_height()
+
+        for net in self._brain.networks:
+            for neuron in net.neurons:
+                active = neuron.is_active(
+                    self._player.state.x, self._player.state.y, self._world,
+                )
+                color = _NEURON_GREEN if active else _NEURON_RED
+                sx = (
+                    World.to_px(self._player.state.x + neuron.dx)
+                    - self._camera.x_offset
+                )
+                sy = screen_h - World.to_px(self._player.state.y + neuron.dy)
+                pygame.draw.circle(surface, color, (sx, sy), _NEURON_RADIUS)
+
+        # Jump glow
+        if self._glow_timer > 0.0:
+            player_sx = (
+                World.to_px(self._player.state.x + 0.5) - self._camera.x_offset
+            )
+            player_sy = screen_h - World.to_px(self._player.state.y + 0.5)
+            glow_surf = pygame.Surface(
+                (_JUMP_GLOW_RADIUS * 2, _JUMP_GLOW_RADIUS * 2), pygame.SRCALPHA,
+            )
+            alpha = int(200 * (self._glow_timer / _JUMP_GLOW_DURATION))
+            pygame.draw.circle(
+                glow_surf,
+                (*_JUMP_GLOW_COLOR, alpha),
+                (_JUMP_GLOW_RADIUS, _JUMP_GLOW_RADIUS),
+                _JUMP_GLOW_RADIUS,
+                3,
+            )
+            surface.blit(
+                glow_surf,
+                (player_sx - _JUMP_GLOW_RADIUS, player_sy - _JUMP_GLOW_RADIUS),
+            )

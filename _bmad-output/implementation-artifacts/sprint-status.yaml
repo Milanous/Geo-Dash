@@ -95,10 +95,10 @@ development_status:
   epic-5: in-progress
   5-0-training-config-dataclass: ready-for-dev
   5-0b-train-config-scene-ui: ready-for-dev
-  5-1-populationsim-numpy-vectorised-simulation: ready-for-dev
-  5-2-fitness-evaluation: ready-for-dev
-  5-3-evolution-top-10-selection-gaussian-mutation: ready-for-dev
-  5-4-generation-loop-100-generations-save-early-stop: ready-for-dev
+  5-1-populationsim-numpy-vectorised-simulation: done
+  5-2-fitness-evaluation: done
+  5-3-evolution-top-10-selection-gaussian-mutation: done
+  5-4-generation-loop-100-generations-save-early-stop: done
   5-5-generation-stats-hud: ready-for-dev
   5-6-best-agent-replay: ready-for-dev
 

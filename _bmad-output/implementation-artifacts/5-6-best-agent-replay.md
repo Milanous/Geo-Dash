@@ -1,6 +1,6 @@
 # Story 5.6: Best Agent Replay
 
-Status: ready-for-dev
+Status: complete
 
 ## Story
 
@@ -19,18 +19,18 @@ So that I can understand how the AI improved over time.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ui/replay_scene.py` : scene de replay
-  - [ ] 1.1 `ReplayScene(Scene)` avec `__init__` : scanner `data/brains/` pour les fichiers `gen_*_best.json` disponibles ; présenter la liste
-  - [ ] 1.2 Sélection génération : interface simple (flèches + Entrée, ou clic)
-  - [ ] 1.3 `_load_gen(gen_num: int) -> None` : charge le fichier JSON via `Brain.from_json()`, instancie un `Player` seul à la position de départ
-  - [ ] 1.4 `update(dt)` : avance la physique du joueur (utiliser `player.update(dt, world)`), évalue `brain.should_jump()` et déclenche le saut
-  - [ ] 1.5 `draw(surface)` : rendu via `GameRenderer`, puis overlay de debug (neurones + indicateur jump)
-  - [ ] 1.6 `ESC` → retour menu ; `R` → `_load_gen` avec la génération courante
-- [ ] Task 2 — Rendu debug neurones
-  - [ ] 2.1 Pour chaque neurone du brain : dessiner un petit cercle à `(player_x + neuron.dx, player_y + neuron.dy)` en coordonnées écran — vert si actif, rouge si inactif
-  - [ ] 2.2 Si `brain.should_jump()` vient de virer à True : flash/glow sur le joueur pendant 0.1 s
-- [ ] Task 3 — Test minimal
-  - [ ] 3.1 Test : `ReplayScene` scan de répertoire vide → liste vide, pas de crash
+- [x] Task 1 — `ui/replay_scene.py` : scene de replay
+  - [x] 1.1 `ReplayScene(Scene)` avec `__init__` : scanner `data/brains/` pour les fichiers `gen_*_best.json` disponibles ; présenter la liste
+  - [x] 1.2 Sélection génération : interface simple (flèches + Entrée, ou clic)
+  - [x] 1.3 `_load_gen(gen_num: int) -> None` : charge le fichier JSON via `Brain.from_json()`, instancie un `Player` seul à la position de départ
+  - [x] 1.4 `update(dt)` : avance la physique du joueur (utiliser `player.update(dt, world)`), évalue `brain.should_jump()` et déclenche le saut
+  - [x] 1.5 `draw(surface)` : rendu via `GameRenderer`, puis overlay de debug (neurones + indicateur jump)
+  - [x] 1.6 `ESC` → retour menu ; `R` → `_load_gen` avec la génération courante
+- [x] Task 2 — Rendu debug neurones
+  - [x] 2.1 Pour chaque neurone du brain : dessiner un petit cercle à `(player_x + neuron.dx, player_y + neuron.dy)` en coordonnées écran — vert si actif, rouge si inactif
+  - [x] 2.2 Si `brain.should_jump()` vient de virer à True : flash/glow sur le joueur pendant 0.1 s
+- [x] Task 3 — Test minimal
+  - [x] 3.1 Test : `ReplayScene` scan de répertoire vide → liste vide, pas de crash
 
 ## Dev Notes
 
@@ -76,12 +76,21 @@ screen_y = screen_h - World.to_px(player.state.y + neuron.dy)
 ## Dev Agent Record
 
 ### Agent Model Used
-_À remplir_
+Claude Opus 4.6
 
 ### Debug Log References
+- 318 tests passing, 0 failures
 
 ### Completion Notes List
+- ReplayScene scans `data/brains/` via regex for `gen_NNN_best.json` files
+- Selector: ↑/↓ + Enter navigation; ESC returns to menu or selector
+- Brain loaded via `Brain.from_json()`, Player injected jump via `player.jump()` with robust try/except logic handling JSON or file errors.
+- Neuron debug overlay: green/red circles at world-to-screen converted positions
+- Jump glow: semi-transparent circle outline (0.1s fade) on `should_jump()` trigger. Rising-edge trigger properly handles in-air network activations as per AC.
+- [R] Replay shortcut added to LevelSelectScene
 
 ### File List
 
 - `ui/replay_scene.py` (nouveau)
+- `ui/level_select_scene.py` (modifié — ajout [R] Replay)
+- `tests/test_replay_scene.py` (nouveau)

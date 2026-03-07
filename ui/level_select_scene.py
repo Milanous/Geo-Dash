@@ -29,7 +29,7 @@ _HINT_MARGIN_BOTTOM = 30
 
 _HINT_TEXT = (
     "[↑↓] Sélectionner  [Enter] Jouer  [E] Éditer  "
-    "[T] Entraîner IA  [N] Nouveau  [DEL] Supprimer"
+    "[T] Entraîner IA  [R] Replay  [N] Nouveau  [DEL] Supprimer"
 )
 
 
@@ -79,6 +79,10 @@ class LevelSelectScene(Scene):
                 elif event.key == pygame.K_t:
                     if self._entries:
                         self._load_and_train(self._entries[self._selected_idx])
+
+                elif event.key == pygame.K_r:
+                    if self._entries:
+                        self._load_and_replay(self._entries[self._selected_idx])
 
                 elif event.key == pygame.K_n:
                     self._new_level()
@@ -183,6 +187,13 @@ class LevelSelectScene(Scene):
             level_name=entry.name,
             return_scene=self,
         )
+
+    def _load_and_replay(self, entry: LevelEntry) -> None:
+        """Open the replay scene for *entry*."""
+        from ui.replay_scene import ReplayScene  # local import
+
+        world = load_level(str(entry.path))
+        self.next_scene = ReplayScene(world=world, return_scene=self)
 
     def _new_level(self) -> None:
         """Open a blank editor; flag for rescan on return."""
