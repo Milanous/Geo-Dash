@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from engine.world import TileType, World
+from engine.world import TileType, World, is_spike
 
 # ── Neuron placement bounds (in blocks, relative to player) ───────
 DX_MIN: float = -1.0   # max 1 block behind
@@ -32,5 +32,8 @@ class Neuron:
 
     def is_active(self, player_x: float, player_y: float, world: World) -> bool:
         tile = world.tile_at(player_x + self.dx, player_y + self.dy)
-        match = tile == self.type
+        if self.type == TileType.SPIKE:
+            match = is_spike(tile)
+        else:
+            match = tile == self.type
         return match if self.polarity == "green" else not match
