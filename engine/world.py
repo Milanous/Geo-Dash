@@ -121,6 +121,14 @@ class World:
             self._expand_width(col + 1)
         self._grid[row][col] = tile_type
 
+    def find_finish_x(self) -> float:
+        """Return the x-position (column) of the first FINISH tile, or width."""
+        for col in range(self.width):
+            for row in range(self.height):
+                if self._grid[row][col] == TileType.FINISH:
+                    return float(col)
+        return float(self.width)
+
     def _expand_width(self, new_width: int) -> None:
         """Grow every row so that the grid has at least *new_width* columns."""
         extra = new_width - self.width

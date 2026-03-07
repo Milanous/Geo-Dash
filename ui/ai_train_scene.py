@@ -88,6 +88,12 @@ class AITrainScene(Scene):
         # HUD from story 5.5
         self.hud = StatsHUD()
 
+        # All-time best distance (across all generations)
+        self._best_dist_all: float = 0.0
+
+        # Distance to FINISH (for percentage display)
+        self._finish_x: float = self.level.find_finish_x()
+
         # Max steps per generation
         self._max_steps_per_gen: int = int(config.max_seconds_per_gen * PHYSICS_RATE)
         self._step_count: int = 0
@@ -160,7 +166,6 @@ class AITrainScene(Scene):
             "best_fitness": float(np.max(self._sim.fitness())) if self.brains else 0.0,
             "avg_fitness": float(np.mean(self._sim.fitness())) if self.brains else 0.0,
             "worst_fitness": float(np.min(self._sim.fitness())) if self.brains else 0.0,
-            "alive": int(np.sum(self._sim.alive)) if self.brains else 0,
             "gen_complete": False,
         }
         self.hud.draw(surface, stats_dict)
@@ -180,13 +185,16 @@ class AITrainScene(Scene):
 
         # ── Stats panel (left side) ─────────────────────────────
         best_fit = float(np.max(self._sim.fitness())) if self.brains else 0.0
-        alive_count = int(np.sum(self._sim.alive)) if self.brains else 0
+        finish = max(1.0, self._finish_x)
+        gen_dist_pct = best_fit / finish * 100
+        self._best_dist_all = max(self._best_dist_all, best_fit)
+        all_dist_pct = self._best_dist_all / finish * 100
         stats_items: list[tuple[str, str]] = [
             ("Génération", f"{self.gen_num + 1} / {self.config.max_generations}"),
             ("Population", str(self.config.population_size)),
-            ("Vivants", str(alive_count)),
-            ("Meilleur fitness", f"{best_fit:.1f}"),
-            ("Largeur niveau", str(self.level.width)),
+            ("Dist max (gén)", f"{best_fit:.1f}  ({gen_dist_pct:.1f}%)"),
+            ("Dist max (all)", f"{all_dist_pct:.1f}%"),
+            ("Largeur niveau", str(int(self._finish_x))),
         ]
 
         panel_x, panel_y = 30, 90
