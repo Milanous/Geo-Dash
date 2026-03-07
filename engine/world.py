@@ -21,10 +21,24 @@ from engine.physics import BLOCK_SIZE_PX
 
 class TileType(Enum):
     """All tile physics types used in the grid."""
-    AIR    = auto()
-    SOLID  = auto()
-    SPIKE  = auto()
+    AIR = auto()
+    SOLID = auto()
+    SPIKE = auto()   # pointing UP (default)
+    SPIKE_DOWN = auto()
+    SPIKE_LEFT = auto()
+    SPIKE_RIGHT = auto()
     FINISH = auto()
+
+
+def is_spike(tile: TileType) -> bool:
+    """Return True if *tile* is any spike variant (UP/DOWN/LEFT/RIGHT)."""
+    return tile in _SPIKE_TYPES
+
+
+_SPIKE_TYPES = frozenset({
+    TileType.SPIKE, TileType.SPIKE_DOWN,
+    TileType.SPIKE_LEFT, TileType.SPIKE_RIGHT,
+})
 
 
 # ---------------------------------------------------------------------------

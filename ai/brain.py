@@ -11,8 +11,10 @@ from ai.network import Network
 from ai.neuron import Neuron
 from engine.world import TileType, World
 
-_TYPE_TO_STR = {TileType.AIR: "air", TileType.SOLID: "solid", TileType.SPIKE: "spike"}
-_STR_TO_TYPE = {v: k for k, v in _TYPE_TO_STR.items()}
+_TYPE_TO_STR = {TileType.AIR: "air", TileType.SOLID: "solid", TileType.SPIKE: "spike",
+                TileType.SPIKE_DOWN: "spike", TileType.SPIKE_LEFT: "spike",
+                TileType.SPIKE_RIGHT: "spike"}
+_STR_TO_TYPE = {"air": TileType.AIR, "solid": TileType.SOLID, "spike": TileType.SPIKE}
 
 
 class Brain:

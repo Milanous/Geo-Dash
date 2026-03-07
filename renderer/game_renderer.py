@@ -11,7 +11,7 @@ import pygame
 
 from engine.camera import Camera
 from engine.player import Player
-from engine.world import TileType, World
+from engine.world import TileType, World, is_spike
 
 # ---------------------------------------------------------------------------
 # Palette (Geometry Dash Stereo Madness original colors)
@@ -78,6 +78,20 @@ def _compute_tint(
     g = min(255, max(0, int(base_color[1] * (1.0 + offset))))
     b = min(255, max(0, int(base_color[2] * (1.0 + offset))))
     return (r, g, b)
+
+
+def _spike_points(
+    tile: TileType, sx: int, sy: int, bs: int,
+) -> list[tuple[int, int]]:
+    """Return the three triangle vertices for an oriented spike."""
+    if tile is TileType.SPIKE:          # apex UP
+        return [(sx, sy + bs), (sx + bs, sy + bs), (sx + bs // 2, sy)]
+    if tile is TileType.SPIKE_DOWN:     # apex DOWN
+        return [(sx, sy), (sx + bs, sy), (sx + bs // 2, sy + bs)]
+    if tile is TileType.SPIKE_LEFT:     # apex LEFT
+        return [(sx + bs, sy), (sx + bs, sy + bs), (sx, sy + bs // 2)]
+    # SPIKE_RIGHT — apex RIGHT
+    return [(sx, sy), (sx, sy + bs), (sx + bs, sy + bs // 2)]
 
 
 class GameRenderer:
@@ -164,14 +178,9 @@ class GameRenderer:
                     # GD style: black fill + neon cyan outline
                     pygame.draw.rect(surface, _SOLID_FILL, rect)
                     pygame.draw.rect(surface, _SOLID_OUTLINE, rect, 2)  # 2px outline
-                elif tile == TileType.SPIKE:
+                elif is_spike(tile):
                     # GD style: black body + white edges
-                    # Filled equilateral triangle occupying the full 1×1 tile area
-                    pts = [
-                        (sx,           sy + bs),   # bottom-left
-                        (sx + bs,      sy + bs),   # bottom-right
-                        (sx + bs // 2, sy),         # apex
-                    ]
+                    pts = _spike_points(tile, sx, sy, bs)
                     pygame.draw.polygon(surface, _SPIKE_FILL, pts)
                     pygame.draw.polygon(surface, _SPIKE_OUTLINE, pts, 2)  # white outline
                 elif tile == TileType.FINISH:

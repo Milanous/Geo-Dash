@@ -15,7 +15,7 @@ import numpy as np
 from ai.brain import Brain
 from ai.training_config import TrainingConfig
 from engine.physics import GRAVITY, JUMP_VELOCITY, PLAYER_SPEED, PHYSICS_RATE
-from engine.world import TileType, World
+from engine.world import World, is_spike
 
 
 class PopulationSim:
@@ -84,7 +84,7 @@ class PopulationSim:
         """Kill alive agents standing on a SPIKE tile."""
         alive_indices = np.where(self.alive)[0]
         for i in alive_indices:
-            if self.level.tile_at(self.x[i], self.y[i]) == TileType.SPIKE:
+            if is_spike(self.level.tile_at(self.x[i], self.y[i])):
                 self.alive[i] = False
 
     def _evaluate_brains(self) -> None:

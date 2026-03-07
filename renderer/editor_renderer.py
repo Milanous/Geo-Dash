@@ -13,7 +13,7 @@ from __future__ import annotations
 import pygame
 
 from engine.physics import BLOCK_SIZE_PX
-from engine.world import TileType, World
+from engine.world import TileType, World, is_spike
 
 # ---------------------------------------------------------------------------
 # Palette — matches game_renderer.py
@@ -65,6 +65,20 @@ _BTN_SAVE_IDX: int = 5
 
 _BTN_DELETE:     tuple[int, int, int] = (180, 60, 60)
 _BTN_DELETE_HOT: tuple[int, int, int] = (220, 80, 80)
+
+
+def _spike_points_editor(
+    tile: TileType, sx: int, sy: int, bs: int,
+) -> list[tuple[int, int]]:
+    """Return the three triangle vertices for an oriented spike in the editor."""
+    if tile is TileType.SPIKE:          # apex UP
+        return [(sx, sy + bs), (sx + bs, sy + bs), (sx + bs // 2, sy)]
+    if tile is TileType.SPIKE_DOWN:     # apex DOWN
+        return [(sx, sy), (sx + bs, sy), (sx + bs // 2, sy + bs)]
+    if tile is TileType.SPIKE_LEFT:     # apex LEFT
+        return [(sx + bs, sy), (sx + bs, sy + bs), (sx, sy + bs // 2)]
+    # SPIKE_RIGHT — apex RIGHT
+    return [(sx, sy), (sx, sy + bs), (sx + bs, sy + bs // 2)]
 
 
 class EditorRenderer:
@@ -167,12 +181,8 @@ class EditorRenderer:
 
                 if tile is TileType.SOLID:
                     pygame.draw.rect(surface, _SOLID_COLOR, rect)
-                elif tile is TileType.SPIKE:
-                    pts = [
-                        (sx,           sy + bs),
-                        (sx + bs,      sy + bs),
-                        (sx + bs // 2, sy),
-                    ]
+                elif is_spike(tile):
+                    pts = _spike_points_editor(tile, sx, sy, bs)
                     pygame.draw.polygon(surface, _SPIKE_COLOR, pts)
                 elif tile is TileType.FINISH:
                     bar_w = 4
@@ -254,11 +264,14 @@ class EditorRenderer:
         lbl = font.render("SOLID", True, _TEXT_COLOR)
         surface.blit(lbl, lbl.get_rect(center=solid_rect.center))
 
-        # SPIKE button
+        # SPIKE button (shows current orientation arrow)
         spike_rect = _btn_rect(_BTN_SPIKE_IDX, screen_h)
-        spike_color = _BTN_ACTIVE if selected_tile_type is TileType.SPIKE and not erase_mode else _BTN_INACTIVE
+        spike_color = _BTN_ACTIVE if is_spike(selected_tile_type) and not erase_mode else _BTN_INACTIVE
         pygame.draw.rect(surface, spike_color, spike_rect, border_radius=3)
-        lbl = font.render("SPIKE", True, _TEXT_COLOR)
+        _arrow = {TileType.SPIKE: "↑", TileType.SPIKE_DOWN: "↓",
+                  TileType.SPIKE_LEFT: "←", TileType.SPIKE_RIGHT: "→"}
+        spike_label = "SPIKE " + _arrow.get(selected_tile_type, "↑")
+        lbl = font.render(spike_label, True, _TEXT_COLOR)
         surface.blit(lbl, lbl.get_rect(center=spike_rect.center))
 
         # FINISH button

@@ -13,7 +13,7 @@ import pygame
 from editor.editor import Editor
 from editor.editor_camera import EditorCamera
 from editor.level_io import load_level, load_level_name, sanitise_name, save_level
-from engine.world import TileType
+from engine.world import TileType, is_spike
 from renderer.editor_renderer import EditorRenderer
 from ui.save_dialog import SaveDialog
 from ui.scene import Scene
@@ -125,6 +125,10 @@ class EditorScene(Scene):
 
                 if event.key == pygame.K_p:
                     self._start_playtest()
+                    return True
+
+                if event.key == pygame.K_r:
+                    self._editor.rotate_spike()
                     return True
 
                 if event.key == pygame.K_s:
@@ -280,7 +284,11 @@ class EditorScene(Scene):
         if solid_rect.left <= mx <= solid_rect.right:
             self._editor.set_selected_tile_type(TileType.SOLID)
         elif spike_rect.left <= mx <= spike_rect.right:
-            self._editor.set_selected_tile_type(TileType.SPIKE)
+            # If already a spike variant, cycle orientation; otherwise select SPIKE (UP)
+            if is_spike(self._editor.selected_tile_type):
+                self._editor.rotate_spike()
+            else:
+                self._editor.set_selected_tile_type(TileType.SPIKE)
         elif finish_rect.left <= mx <= finish_rect.right:
             self._editor.set_selected_tile_type(TileType.FINISH)
         elif delete_rect.left <= mx <= delete_rect.right:

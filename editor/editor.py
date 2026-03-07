@@ -10,7 +10,13 @@ Import rule: only engine/ and stdlib. NEVER import pygame, renderer, or ai.
 
 from __future__ import annotations
 
-from engine.world import TileType, World
+from engine.world import TileType, World, is_spike
+
+# Cycle order for spike orientation (triggered by R key)
+_SPIKE_CYCLE: list[TileType] = [
+    TileType.SPIKE, TileType.SPIKE_RIGHT,
+    TileType.SPIKE_DOWN, TileType.SPIKE_LEFT,
+]
 
 
 class Editor:
@@ -83,6 +89,19 @@ class Editor:
                 "Use erase_tile() to remove tiles."
             )
         self._selected = tile_type
+        self._erase_mode = False
+
+    def rotate_spike(self) -> None:
+        """Cycle the spike orientation (UP → RIGHT → DOWN → LEFT → UP).
+
+        If the current selection is a spike variant, cycle to the next.
+        Otherwise, select SPIKE (UP) as starting point.
+        """
+        if is_spike(self._selected):
+            idx = _SPIKE_CYCLE.index(self._selected)
+            self._selected = _SPIKE_CYCLE[(idx + 1) % len(_SPIKE_CYCLE)]
+        else:
+            self._selected = TileType.SPIKE
         self._erase_mode = False
 
     def set_erase_mode(self, enabled: bool = True) -> None:

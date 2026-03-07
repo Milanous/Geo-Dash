@@ -16,7 +16,7 @@ from engine.physics import (
     WALL_CORNER_FORGIVENESS,
     PlayerState,
 )
-from engine.world import TileType, World
+from engine.world import TileType, World, is_spike
 
 
 class Player:
@@ -168,7 +168,7 @@ class Player:
                 t = world.tile_at(c, r)
                 if t == TileType.FINISH:
                     self.state.finished = True
-                elif t == TileType.SPIKE:
+                elif is_spike(t):
                     # Corner forgiveness: check if player is truly inside
                     # the shrunken spike hitbox, not just grazing the corner
                     if self._is_inside_spike_hitbox(c, r):

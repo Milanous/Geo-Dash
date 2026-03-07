@@ -21,9 +21,12 @@ from engine.world import TileType, World
 # ---------------------------------------------------------------------------
 
 _TYPE_TO_STR: dict[TileType, str] = {
-    TileType.SOLID:  "solid",
-    TileType.SPIKE:  "spike",
-    TileType.FINISH: "finish",
+    TileType.SOLID:       "solid",
+    TileType.SPIKE:       "spike",
+    TileType.SPIKE_DOWN:  "spike_down",
+    TileType.SPIKE_LEFT:  "spike_left",
+    TileType.SPIKE_RIGHT: "spike_right",
+    TileType.FINISH:      "finish",
 }
 
 _STR_TO_TYPE: dict[str, TileType] = {v: k for k, v in _TYPE_TO_STR.items()}
