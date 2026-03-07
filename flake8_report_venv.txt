@@ -1,0 +1,151 @@
+Note: The tool simplified the command to ` /Users/milanviallet/Documents\ -\ MacBook\ Air\ de\ Milan/Albert/B2/Py\ B2/Projet\ PE/.venv/bin/flake8 ai/ editor/ engine/ ui/ renderer/`, and this is the output of running that command instead:
+ai/brain.py:4:80: E501 line too long (88 > 79 characters)
+ai/brain.py:12:1: F401 'engine.world.is_spike' imported but unused
+ai/brain.py:14:80: E501 line too long (86 > 79 characters)
+ai/brain.py:17:80: E501 line too long (86 > 79 characters)
+ai/brain.py:24:80: E501 line too long (82 > 79 characters)
+ai/brain.py:25:80: E501 line too long (87 > 79 characters)
+ai/brain.py:49:80: E501 line too long (81 > 79 characters)
+ai/evolution.py:22:80: E501 line too long (82 > 79 characters)
+ai/evolution.py:87:80: E501 line too long (86 > 79 characters)
+ai/network.py:4:80: E501 line too long (80 > 79 characters)
+ai/network.py:18:80: E501 line too long (82 > 79 characters)
+ai/network.py:21:80: E501 line too long (80 > 79 characters)
+ai/neuron.py:22:80: E501 line too long (80 > 79 characters)
+ai/simulation.py:7:80: E501 line too long (82 > 79 characters)
+ai/simulation.py:18:1: F401 'engine.world.TileType' imported but unused
+editor/editor_camera.py:91:80: E501 line too long (86 > 79 characters)
+editor/level_io.py:51:80: E501 line too long (82 > 79 characters)
+editor/level_io.py:75:1: E302 expected 2 blank lines, found 1
+editor/level_io.py:95:80: E501 line too long (82 > 79 characters)
+editor/level_library.py:23:80: E501 line too long (81 > 79 characters)
+editor/level_library.py:24:80: E501 line too long (85 > 79 characters)
+editor/level_library.py:38:1: W293 blank line contains whitespace
+engine/camera.py:7:80: E501 line too long (85 > 79 characters)
+engine/physics.py:2:80: E501 line too long (85 > 79 characters)
+engine/physics.py:8:1: F401 'dataclasses.field' imported but unused
+engine/player.py:4:80: E501 line too long (86 > 79 characters)
+engine/player.py:90:80: E501 line too long (87 > 79 characters)
+engine/player.py:105:1: W293 blank line contains whitespace
+engine/player.py:111:80: E501 line too long (82 > 79 characters)
+engine/player.py:120:80: E501 line too long (81 > 79 characters)
+engine/player.py:128:1: W293 blank line contains whitespace
+engine/player.py:142:1: W293 blank line contains whitespace
+engine/player.py:144:80: E501 line too long (88 > 79 characters)
+engine/player.py:145:53: W291 trailing whitespace
+engine/player.py:146:28: E128 continuation line under-indented for visual indent
+engine/player.py:147:1: W293 blank line contains whitespace
+engine/player.py:154:80: E501 line too long (81 > 79 characters)
+engine/world.py:7:80: E501 line too long (81 > 79 characters)
+engine/world.py:24:8: E221 multiple spaces before operator
+engine/world.py:25:10: E221 multiple spaces before operator
+engine/world.py:26:10: E221 multiple spaces before operator
+engine/world.py:27:15: E221 multiple spaces before operator
+engine/world.py:28:15: E221 multiple spaces before operator
+engine/world.py:30:11: E221 multiple spaces before operator
+engine/world.py:71:19: E221 multiple spaces before operator
+renderer/editor_renderer.py:81:80: E501 line too long (81 > 79 characters)
+renderer/editor_renderer.py:117:80: E501 line too long (85 > 79 characters)
+renderer/editor_renderer.py:120:9: F841 local variable 'bs' is assigned to but n
+ever used                                                                       renderer/editor_renderer.py:132:80: E501 line too long (81 > 79 characters)
+renderer/editor_renderer.py:135:80: E501 line too long (87 > 79 characters)
+renderer/editor_renderer.py:151:80: E501 line too long (90 > 79 characters)
+renderer/editor_renderer.py:172:80: E501 line too long (81 > 79 characters)
+renderer/editor_renderer.py:189:80: E501 line too long (81 > 79 characters)
+renderer/editor_renderer.py:224:80: E501 line too long (87 > 79 characters)
+renderer/editor_renderer.py:235:80: E501 line too long (85 > 79 characters)
+renderer/editor_renderer.py:252:80: E501 line too long (87 > 79 characters)
+renderer/editor_renderer.py:262:80: E501 line too long (111 > 79 characters)
+renderer/editor_renderer.py:269:80: E501 line too long (103 > 79 characters)
+renderer/editor_renderer.py:279:80: E501 line too long (113 > 79 characters)
+renderer/editor_renderer.py:298:80: E501 line too long (83 > 79 characters)
+renderer/editor_renderer.py:305:80: E501 line too long (83 > 79 characters)
+renderer/editor_renderer.py:322:80: E501 line too long (117 > 79 characters)
+renderer/editor_renderer.py:325:5: F841 local variable 'TOOLBAR_HEIGHT' is assig
+ned to but never used                                                           renderer/editor_renderer.py:326:5: F841 local variable 'BTN_SOLID_IDX' is assign
+ed to but never used                                                            renderer/editor_renderer.py:327:5: F841 local variable 'BTN_SPIKE_IDX' is assign
+ed to but never used                                                            renderer/editor_renderer.py:328:5: F841 local variable 'BTN_FINISH_IDX' is assig
+ned to but never used                                                           renderer/editor_renderer.py:329:5: F841 local variable 'BTN_DELETE_IDX' is assig
+ned to but never used                                                           renderer/editor_renderer.py:330:5: F841 local variable 'BTN_PLAY_IDX' is assigne
+d to but never used                                                             renderer/editor_renderer.py:331:5: F841 local variable 'BTN_SAVE_IDX' is assigne
+d to but never used                                                             renderer/game_renderer.py:38:9: E221 multiple spaces before operator
+renderer/game_renderer.py:180:80: E501 line too long (85 > 79 characters)
+renderer/game_renderer.py:185:80: E501 line too long (89 > 79 characters)
+renderer/game_renderer.py:189:80: E501 line too long (81 > 79 characters)
+renderer/game_renderer.py:211:80: E501 line too long (81 > 79 characters)
+renderer/game_renderer.py:216:80: E501 line too long (84 > 79 characters)
+renderer/game_renderer.py:218:80: E501 line too long (81 > 79 characters)
+renderer/vfx.py:38:80: E501 line too long (81 > 79 characters)
+renderer/vfx.py:48:32: E261 at least two spaces before inline comment
+renderer/vfx.py:263:80: E501 line too long (88 > 79 characters)
+renderer/vfx.py:269:80: E501 line too long (82 > 79 characters)
+ui/__init__.py:1:80: E501 line too long (83 > 79 characters)
+ui/ai_train_scene.py:2:80: E501 line too long (81 > 79 characters)
+ui/ai_train_scene.py:17:1: F401 'pathlib.Path' imported but unused
+ui/ai_train_scene.py:27:1: F401 'engine.physics.DT' imported but unused
+ui/ai_train_scene.py:57:80: E501 line too long (81 > 79 characters)
+ui/ai_train_scene.py:68:80: E501 line too long (83 > 79 characters)
+ui/ai_train_scene.py:80:80: E501 line too long (85 > 79 characters)
+ui/ai_train_scene.py:142:80: E501 line too long (80 > 79 characters)
+ui/ai_train_scene.py:200:80: E501 line too long (82 > 79 characters)
+ui/ai_train_scene.py:225:80: E501 line too long (81 > 79 characters)
+ui/editor_scene.py:15:80: E501 line too long (82 > 79 characters)
+ui/editor_scene.py:163:80: E501 line too long (81 > 79 characters)
+ui/editor_scene.py:168:80: E501 line too long (81 > 79 characters)
+ui/editor_scene.py:180:80: E501 line too long (81 > 79 characters)
+ui/editor_scene.py:184:80: E501 line too long (81 > 79 characters)
+ui/editor_scene.py:236:80: E501 line too long (83 > 79 characters)
+ui/editor_scene.py:247:80: E501 line too long (84 > 79 characters)
+ui/editor_scene.py:248:80: E501 line too long (87 > 79 characters)
+ui/editor_scene.py:253:80: E501 line too long (85 > 79 characters)
+ui/editor_scene.py:256:1: W293 blank line contains whitespace
+ui/editor_scene.py:259:80: E501 line too long (89 > 79 characters)
+ui/editor_scene.py:261:1: W293 blank line contains whitespace
+ui/editor_scene.py:277:19: E221 multiple spaces before operator
+ui/editor_scene.py:277:80: E501 line too long (94 > 79 characters)
+ui/editor_scene.py:278:19: E221 multiple spaces before operator
+ui/editor_scene.py:278:80: E501 line too long (94 > 79 characters)
+ui/editor_scene.py:279:80: E501 line too long (94 > 79 characters)
+ui/editor_scene.py:280:80: E501 line too long (94 > 79 characters)
+ui/editor_scene.py:281:18: E221 multiple spaces before operator
+ui/editor_scene.py:281:80: E501 line too long (94 > 79 characters)
+ui/editor_scene.py:282:18: E221 multiple spaces before operator
+ui/editor_scene.py:282:80: E501 line too long (94 > 79 characters)
+ui/editor_scene.py:287:80: E501 line too long (88 > 79 characters)
+ui/level_select_scene.py:85:80: E501 line too long (80 > 79 characters)
+ui/level_select_scene.py:125:80: E501 line too long (80 > 79 characters)
+ui/level_select_scene.py:126:80: E501 line too long (83 > 79 characters)
+ui/level_select_scene.py:147:80: E501 line too long (89 > 79 characters)
+ui/level_select_scene.py:170:80: E501 line too long (90 > 79 characters)
+ui/play_scene.py:57:80: E501 line too long (84 > 79 characters)
+ui/play_scene.py:76:80: E501 line too long (81 > 79 characters)
+ui/play_scene.py:100:80: E501 line too long (80 > 79 characters)
+ui/play_scene.py:124:80: E501 line too long (86 > 79 characters)
+ui/play_scene.py:129:80: E501 line too long (84 > 79 characters)
+ui/play_scene.py:144:80: E501 line too long (80 > 79 characters)
+ui/replay_scene.py:21:1: F401 'engine.world.TileType' imported but unused
+ui/replay_scene.py:210:80: E501 line too long (89 > 79 characters)
+ui/replay_scene.py:214:80: E501 line too long (82 > 79 characters)
+ui/replay_scene.py:221:80: E501 line too long (84 > 79 characters)
+ui/replay_scene.py:227:80: E501 line too long (81 > 79 characters)
+ui/replay_scene.py:285:80: E501 line too long (80 > 79 characters)
+ui/save_dialog.py:15:80: E501 line too long (83 > 79 characters)
+ui/save_dialog.py:107:80: E501 line too long (83 > 79 characters)
+ui/save_dialog.py:118:80: E501 line too long (85 > 79 characters)
+ui/save_dialog.py:119:80: E501 line too long (88 > 79 characters)
+ui/save_dialog.py:128:80: E501 line too long (102 > 79 characters)
+ui/save_dialog.py:131:80: E501 line too long (86 > 79 characters)
+ui/scene.py:26:80: E501 line too long (84 > 79 characters)
+ui/scene.py:29:80: E501 line too long (82 > 79 characters)
+ui/train_config_scene.py:75:1: W293 blank line contains whitespace
+ui/train_config_scene.py:162:80: E501 line too long (82 > 79 characters)
+ui/train_config_scene.py:164:80: E501 line too long (80 > 79 characters)
+ui/train_config_scene.py:178:80: E501 line too long (80 > 79 characters)
+ui/train_config_scene.py:217:80: E501 line too long (84 > 79 characters)
+ui/train_config_scene.py:248:80: E501 line too long (82 > 79 characters)
+ui/train_config_scene.py:255:1: W293 blank line contains whitespace
+ui/victory_scene.py:89:80: E501 line too long (83 > 79 characters)
+ui/victory_scene.py:90:80: E501 line too long (89 > 79 characters)
+
+
+Command exited with code 1
