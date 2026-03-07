@@ -1,6 +1,6 @@
 # Story 5.0: TrainingConfig — Hyperparameter Container
 
-Status: ready-for-dev
+Status: complete
 
 ## Story
 
@@ -27,24 +27,24 @@ So that I can configure them from the UI and pass them to all AI modules without
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ai/training_config.py` : dataclass `TrainingConfig`
-  - [ ] 1.1 Définir `@dataclass` avec les 7 champs listés ci-dessus et leurs valeurs par défaut
-  - [ ] 1.2 `__post_init__(self)` — validations :
+- [x] Task 1 — `ai/training_config.py` : dataclass `TrainingConfig`
+  - [x] 1.1 Définir `@dataclass` avec les 7 champs listés ci-dessus et leurs valeurs par défaut
+  - [x] 1.2 `__post_init__(self)` — validations :
     - `if self.p_move + self.p_neuron > 1.0: raise ValueError(...)`
     - `if self.top_n >= self.population_size: raise ValueError(...)`
     - `if self.population_size < 1: raise ValueError(...)`
     - `if self.max_generations < 1: raise ValueError(...)`
     - `if self.mutation_sigma <= 0: raise ValueError(...)`
     - `if self.max_seconds_per_gen <= 0: raise ValueError(...)`
-  - [ ] 1.3 ZERO import `pygame`, `renderer`, ou tout module non-stdlib
+  - [x] 1.3 ZERO import `pygame`, `renderer`, ou tout module non-stdlib
 
-- [ ] Task 2 — `tests/test_training_config.py`
-  - [ ] 2.1 Test : `TrainingConfig()` crée une instance avec toutes les valeurs par défaut correctes
-  - [ ] 2.2 Test : `p_move + p_neuron > 1.0` → `ValueError`
-  - [ ] 2.3 Test : `top_n >= population_size` → `ValueError`
-  - [ ] 2.4 Test : `population_size < 1` → `ValueError`
-  - [ ] 2.5 Test : `mutation_sigma <= 0` → `ValueError`
-  - [ ] 2.6 Test : import guard — `training_config.py` n'importe pas `pygame`
+- [x] Task 2 — `tests/test_training_config.py`
+  - [x] 2.1 Test : `TrainingConfig()` crée une instance avec toutes les valeurs par défaut correctes
+  - [x] 2.2 Test : `p_move + p_neuron > 1.0` → `ValueError`
+  - [x] 2.3 Test : `top_n >= population_size` → `ValueError`
+  - [x] 2.4 Test : `population_size < 1` → `ValueError`
+  - [x] 2.5 Test : `mutation_sigma <= 0` → `ValueError`
+  - [x] 2.6 Test : import guard — `training_config.py` n'importe pas `pygame`
 
 ## Dev Notes
 
@@ -90,12 +90,20 @@ tests/
 
 ## Dev Agent Record
 
-### Agent Model Used
-_À remplir_
+### Agents Used
+Claude Opus 4.6 (Amelia / Dev Agent)
+Gemini 3.1 Pro (Adversarial Code Review)
 
 ### Debug Log References
+Aucun — implémentation directe, 0 échec.
 
 ### Completion Notes List
+- `TrainingConfig` dataclass créée avec 7 champs + `__post_init__` (9 validations incluant les limites négatives pour probabilités et top_n)
+- 14 tests couvrent : defaults, toutes les validations ValueError, import guard
+- 200/200 tests passent (suite complète hors modules pygame non-installés dans cet env)
+- [AI-Review] Fix CRITICAL : ajout validation probabilistes dans [0, 1] pour `p_move` et `p_neuron`
+- [AI-Review] Fix CRITICAL : ajout validation `top_n >= 1`
+- [AI-Review] Fix MEDIUM : ajout des fichiers `ai/` et `tests/` initiaux dans l'index Git
 
 ### File List
 

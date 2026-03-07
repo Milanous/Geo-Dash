@@ -175,15 +175,14 @@ class LevelSelectScene(Scene):
 
     def _load_and_train(self, entry: LevelEntry) -> None:
         """Launch AI training on *entry*."""
-        try:
-            from ui.ai_train_scene import AITrainScene  # local import
+        from ui.train_config_scene import TrainConfigScene
 
-            world = load_level(str(entry.path))
-            # Wait for Story 5.4 to implement return_scene in AITrainScene
-            self.next_scene = AITrainScene(world=world, level_name=entry.name)
-        except ImportError:
-            # AITrainScene not yet implemented (Story 5.4); silently ignore
-            pass
+        world = load_level(str(entry.path))
+        self.next_scene = TrainConfigScene(
+            world=world,
+            level_name=entry.name,
+            return_scene=self,
+        )
 
     def _new_level(self) -> None:
         """Open a blank editor; flag for rescan on return."""

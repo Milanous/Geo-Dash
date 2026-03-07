@@ -1,6 +1,6 @@
 # Story 5.0b: TrainConfigScene — Hyperparameter Selection UI
 
-Status: ready-for-dev
+Status: complete
 
 ## Story
 
@@ -25,8 +25,8 @@ So that I can experiment with different settings without modifying the code.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1 — `ui/train_config_scene.py` : `TrainConfigScene(Scene)`
-  - [ ] 1.1 Définir la liste des champs :
+- [x] Task 1 — `ui/train_config_scene.py` : `TrainConfigScene(Scene)`
+  - [x] 1.1 Définir la liste des champs :
     ```python
     FIELDS = [
         ("Population size",   "population_size", int,   1000),
@@ -38,31 +38,31 @@ So that I can experiment with different settings without modifying the code.
         ("P(neuron)",         "p_neuron",        float, 0.25),
     ]
     ```
-  - [ ] 1.2 `__init__` : initialiser `self.values = {attr: str(default) for ...}` ; `self.active_field = None` ; `self.error_msg = ""`
-  - [ ] 1.3 `handle_events(events)` :
+  - [x] 1.2 `__init__` : initialiser `self.values = {attr: str(default) for ...}` ; `self.active_field = None` ; `self.error_msg = ""`
+  - [x] 1.3 `handle_events(events)` :
     - `MOUSEBUTTONDOWN` → déterminer quel champ est cliqué → `self.active_field = attr`
     - `KEYDOWN` sur champ actif :
       - chiffres / point → append à `self.values[active_field]`
       - BACKSPACE → retirer dernier caractère
       - RETURN/KP_ENTER → appeler `_try_launch()`
       - ESCAPE → retour menu
-  - [ ] 1.4 `_try_launch(self)` :
+  - [x] 1.4 `_try_launch(self)` :
     - Convertir `self.values` vers les types corrects (int/float)
     - Tenter `TrainingConfig(**kwargs)`
     - Si `ValueError` → afficher message dans `self.error_msg`, ne pas changer de scène
     - Si succès → `self.next_scene = AITrainScene(config=config)`
-  - [ ] 1.5 `draw(surface)` :
+  - [x] 1.5 `draw(surface)` :
     - Fond noir, titre "AI Training Configuration"
     - Pour chaque champ : label à gauche, rectangle de saisie à droite
     - Champ actif : bordure colorée
     - `self.error_msg` en rouge sous les champs si non vide
     - Bouton "Launch Training" en bas
 
-- [ ] Task 2 — `tests/test_train_config_scene.py` (headless)
-  - [ ] 2.1 Test : valeurs par défaut correctes à l'init (`self.values` contient les bonnes valeurs string)
-  - [ ] 2.2 Test : `_try_launch()` avec `p_move=0.8, p_neuron=0.3` → `error_msg` non vide, pas de `next_scene`
-  - [ ] 2.3 Test : `_try_launch()` avec `top_n=50, population_size=10` → `error_msg` non vide
-  - [ ] 2.4 Test : `_try_launch()` avec valeurs valides → `next_scene` est une instance de `AITrainScene`
+- [x] Task 2 — `tests/test_train_config_scene.py` (headless)
+  - [x] 2.1 Test : valeurs par défaut correctes à l'init (`self.values` contient les bonnes valeurs string)
+  - [x] 2.2 Test : `_try_launch()` avec `p_move=0.8, p_neuron=0.3` → `error_msg` non vide, pas de `next_scene`
+  - [x] 2.3 Test : `_try_launch()` avec `top_n=50, population_size=10` → `error_msg` non vide
+  - [x] 2.4 Test : `_try_launch()` avec valeurs valides → `next_scene` est une instance de `AITrainScene`
 
 ## Dev Notes
 
@@ -121,11 +121,19 @@ Bloquer les lettres et caractères spéciaux.
 ## Dev Agent Record
 
 ### Agent Model Used
-_À remplir_
+Claude Opus 4.6 (Copilot Agent — Amelia)
 
 ### Debug Log References
+None
 
 ### Completion Notes List
+- All 7 FIELDS defined with (label, attr, type, default)
+- `__init__` sets `values`, `active_field`, `error_msg`; lazy-inits fonts
+- `handle_events` handles MOUSEBUTTONDOWN (field click + button click), KEYDOWN (digits, dot, backspace, Enter, Esc)
+- `_try_launch` converts values, constructs `TrainingConfig`, catches `ValueError` for inline error; uses `try/except ImportError` for `AITrainScene` (Story 5.4 not yet implemented)
+- `draw` renders title, labelled input fields, active-field highlight, error in red, Launch button with hover
+- 9 headless tests: 2 default-values, 2 invalid-probabilities, 2 invalid-top_n, 1 valid-launch (mocked AITrainScene), 1 empty-field, 1 non-numeric
+- Full suite: 262 passed, 0 failed
 
 ### File List
 
