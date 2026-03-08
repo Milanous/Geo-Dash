@@ -94,6 +94,10 @@ class ReplayScene(Scene):
         # Pause state
         self._paused: bool = False
 
+        # Search state
+        self._search_active: bool = False
+        self._search_text: str = ""
+
         # Lazy fonts
         self._font: pygame.font.Font | None = None
         self._title_font: pygame.font.Font | None = None
@@ -121,6 +125,29 @@ class ReplayScene(Scene):
                 gens.append(int(m.group(1)))
         gens.sort()
         return gens
+
+    # ------------------------------------------------------------------
+    # Search helpers
+    # ------------------------------------------------------------------
+
+    def _apply_search(self) -> None:
+        """Jump to the generation matching the search text, or closest."""
+        self._search_active = False
+        if not self._search_text or not self._generations:
+            self._search_text = ""
+            return
+        target = int(self._search_text)
+        self._search_text = ""
+        # Exact match first
+        if target in self._generations:
+            self._selected_idx = self._generations.index(target)
+            return
+        # Otherwise find the closest generation
+        closest_idx = min(
+            range(len(self._generations)),
+            key=lambda i: abs(self._generations[i] - target),
+        )
+        self._selected_idx = closest_idx
 
     # ------------------------------------------------------------------
     # Brain loading
@@ -182,6 +209,25 @@ class ReplayScene(Scene):
 
                 # Selector mode
                 if self._brain is None:
+                    if self._search_active:
+                        if event.key == pygame.K_ESCAPE:
+                            self._search_active = False
+                            self._search_text = ""
+                            continue
+                        elif event.key == pygame.K_RETURN:
+                            self._apply_search()
+                            continue
+                        elif event.key == pygame.K_BACKSPACE:
+                            self._search_text = self._search_text[:-1]
+                            continue
+                        elif event.unicode.isdigit():
+                            self._search_text += event.unicode
+                            continue
+                        continue
+                    if event.key == pygame.K_g:
+                        self._search_active = True
+                        self._search_text = ""
+                        continue
                     if event.key == pygame.K_UP and self._selected_idx > 0:
                         self._selected_idx -= 1
                     elif (
@@ -299,8 +345,29 @@ class ReplayScene(Scene):
                 dn_surf = self._hint_font.render("▼", True, T.PURPLE)
                 surface.blit(dn_surf, (sw // 2 - dn_surf.get_width() // 2, list_area_bottom - 14))
 
+        # ── Search bar ──────────────────────────────────────────
+        if self._search_active:
+            search_w = 300
+            search_h = 36
+            search_x = sw // 2 - search_w // 2
+            search_y = list_area_bottom - search_h - 8
+            search_rect = pygame.Rect(search_x, search_y, search_w, search_h)
+            pygame.draw.rect(surface, T.BG_INPUT_ACT, search_rect, border_radius=T.RADIUS_SM)
+            pygame.draw.rect(surface, T.PURPLE, search_rect, width=2, border_radius=T.RADIUS_SM)
+
+            prompt = f"Génération : {self._search_text}_"
+            stxt = self._font.render(prompt, True, T.TEXT)
+            surface.blit(
+                stxt,
+                (search_rect.x + 12,
+                 search_rect.y + (search_rect.height - stxt.get_height()) // 2),
+            )
+
         # ── Footer ────────────────────────────────────────────────
-        T.draw_footer(surface, "[↑↓] Sélectionner  [Enter] Lancer  [ESC] Retour")
+        if self._search_active:
+            T.draw_footer(surface, "[Enter] Aller  [ESC] Annuler")
+        else:
+            T.draw_footer(surface, "[↑↓] Sélectionner  [G] Rechercher  [Enter] Lancer  [ESC] Retour")
 
     # ------------------------------------------------------------------
     # Replay drawing (game + debug overlay)

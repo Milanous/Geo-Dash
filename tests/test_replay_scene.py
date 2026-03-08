@@ -110,3 +110,49 @@ class TestReplayLoad:
         assert scene._camera is not None
         assert scene._current_gen == 3
 
+
+# ---------------------------------------------------------------------------
+# Search feature
+# ---------------------------------------------------------------------------
+
+class TestReplaySearch:
+    def _make_scene(self, tmp_path: pathlib.Path, gens: list[int]):
+        from ui.replay_scene import ReplayScene
+        for gen in gens:
+            path = tmp_path / f"gen_{gen:03d}_best.json"
+            path.write_text(json.dumps(_dummy_brain_json()), encoding="utf-8")
+        return ReplayScene(world=_simple_world(), brains_dir=str(tmp_path))
+
+    def test_search_exact_match(self, tmp_path: pathlib.Path) -> None:
+        scene = self._make_scene(tmp_path, [1, 5, 10, 20, 50])
+        scene._search_text = "10"
+        scene._search_active = True
+        scene._apply_search()
+        assert scene._selected_idx == 2  # index of gen 10
+        assert not scene._search_active
+
+    def test_search_closest_match(self, tmp_path: pathlib.Path) -> None:
+        scene = self._make_scene(tmp_path, [1, 10, 20, 50])
+        scene._search_text = "18"
+        scene._search_active = True
+        scene._apply_search()
+        assert scene._selected_idx == 2  # gen 20 is closest to 18
+
+    def test_search_empty_text(self, tmp_path: pathlib.Path) -> None:
+        scene = self._make_scene(tmp_path, [1, 5, 10])
+        scene._selected_idx = 1
+        scene._search_text = ""
+        scene._search_active = True
+        scene._apply_search()
+        assert scene._selected_idx == 1  # unchanged
+        assert not scene._search_active
+
+    def test_search_no_generations(self, tmp_path: pathlib.Path) -> None:
+        from ui.replay_scene import ReplayScene
+        scene = ReplayScene(world=_simple_world(), brains_dir=str(tmp_path))
+        scene._search_text = "5"
+        scene._search_active = True
+        scene._apply_search()
+        assert scene._selected_idx == 0
+        assert not scene._search_active
+
