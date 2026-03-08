@@ -108,30 +108,26 @@ class Player:
             top of the block (within LANDING_TOLERANCE), it's a landing.
           - Otherwise, hitting a SOLID block from the side is death.
         """
-        # World bottom boundary — catches player even with no tiles (AC Story 1.6)
+        # World bottom boundary — falling below floor level is lethal
         if self.state.y <= 0.0:
-            self.state.y = 0.0
-            self.state.vy = 0.0
-            self.state.on_ground = True
+            self.alive = False
+            return
 
         if world is None:
             return
 
         # Tolerance for "coming from above" — player.y must be >= tile_top - this
-        LANDING_TOLERANCE = 0.35  # ~10 pixels of grace for landing on corners
+        LANDING_TOLERANCE = 0.10  # ~3 pixels of grace for landing on corners
 
-        # 1. Floor collision — check BOTH bottom corners for landing
+        # 1. Floor collision — check CENTER of player for landing
         if self.state.vy <= 0.0:
-            left_col = int(self.state.x)
-            right_col = int(self.state.x + 0.9)
+            center_col = int(self.state.x + 0.5)
             bot_row = int(self.state.y)
-            
-            for col in (left_col, right_col):
-                if world.tile_at(col, bot_row) == TileType.SOLID:
-                    self.state.y = float(bot_row + 1)
-                    self.state.vy = 0.0
-                    self.state.on_ground = True
-                    break
+
+            if world.tile_at(center_col, bot_row) == TileType.SOLID:
+                self.state.y = float(bot_row + 1)
+                self.state.vy = 0.0
+                self.state.on_ground = True
 
         # 2. Wall collision (front-face / right-side check)
         # Check blocks that the player's right edge overlaps

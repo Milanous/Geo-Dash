@@ -196,27 +196,24 @@ def test_player_lands_on_solid_floor_tiles() -> None:
 
 
 def test_player_world_boundary_without_tiles() -> None:
-    """AC-4: World boundary at y=0 catches player even without any tile."""
+    """AC-4: World boundary at y=0 kills the player (no invisible floor)."""
     empty_world = World(20, 10)  # all AIR
     p = Player(start_x=5.0, start_y=3.0)
     for _ in range(500):
         p.update(DT, empty_world)
-        if p.state.on_ground:
+        if not p.alive:
             break
-    assert p.state.y == pytest.approx(0.0, abs=1e-9)
-    assert p.state.vy == pytest.approx(0.0)
-    assert p.state.on_ground is True
+    assert p.alive is False
 
 
 def test_player_world_boundary_no_world_arg() -> None:
-    """World boundary (y<=0) works even without a world argument."""
+    """World boundary (y<=0) kills the player even without a world argument."""
     p = Player(start_x=0.0, start_y=3.0)
     for _ in range(500):
         p.update(DT, None)
-        if p.state.on_ground:
+        if not p.alive:
             break
-    assert p.state.y == pytest.approx(0.0, abs=1e-9)
-    assert p.state.on_ground is True
+    assert p.alive is False
 
 
 def test_player_jump_when_on_ground() -> None:

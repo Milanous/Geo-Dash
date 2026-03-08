@@ -63,10 +63,13 @@ def test_player_finish_tile() -> None:
 def test_player_finish_tile_overlap() -> None:
     """Player bounding box overlapping a FINISH tile on its right edge triggers finish."""
     world = World(20, 10)
+    # Add a solid floor so the player doesn't fall to death
+    for col in range(10):
+        world.set_tile(col, 0, TileType.SOLID)
     world.set_tile(10, 0, TileType.FINISH)
 
     # Placed slightly before the tile, right edge crosses x=10
-    player = Player(start_x=9.5, start_y=0.0)
+    player = Player(start_x=9.5, start_y=1.0)
     player.state.on_ground = True
     player.state.vy = 0.0
 
