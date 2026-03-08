@@ -4,13 +4,13 @@ from dataclasses import dataclass
 @dataclass
 class TrainingConfig:
     population_size: int = 1000
-    max_generations: int = 300
-    top_n: int = 100
-    mutation_sigma: float = 3.0
+    max_generations: int = 500
+    top_n: int = 200
+    mutation_sigma: float = 1.0
     max_seconds_per_gen: float = 120.0
     p_move: float = 0.99
-    p_neuron: float = 0.0095
-    p_network: float = 0.0005
+    p_neuron: float = 0.008
+    p_network: float = 0.002
     mutations_per_individual: int = 3
 
     def __post_init__(self):

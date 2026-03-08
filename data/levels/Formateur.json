@@ -947,7 +947,7 @@
     {
       "x": 190,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 191,
@@ -962,7 +962,7 @@
     {
       "x": 193,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 194,
@@ -972,12 +972,12 @@
     {
       "x": 195,
       "y": 1,
-      "type": "solid"
+      "type": "spike"
     },
     {
       "x": 196,
       "y": 1,
-      "type": "solid"
+      "type": "spike"
     },
     {
       "x": 197,
@@ -2045,17 +2045,17 @@
       "type": "solid"
     },
     {
+      "x": 190,
+      "y": 2,
+      "type": "solid"
+    },
+    {
       "x": 191,
       "y": 2,
       "type": "solid"
     },
     {
-      "x": 195,
-      "y": 2,
-      "type": "solid"
-    },
-    {
-      "x": 196,
+      "x": 193,
       "y": 2,
       "type": "solid"
     },
@@ -2875,17 +2875,17 @@
       "type": "solid"
     },
     {
+      "x": 190,
+      "y": 3,
+      "type": "solid"
+    },
+    {
       "x": 191,
       "y": 3,
       "type": "solid"
     },
     {
-      "x": 195,
-      "y": 3,
-      "type": "solid"
-    },
-    {
-      "x": 196,
+      "x": 193,
       "y": 3,
       "type": "solid"
     },
@@ -3705,17 +3705,17 @@
       "type": "solid"
     },
     {
+      "x": 190,
+      "y": 4,
+      "type": "solid"
+    },
+    {
       "x": 191,
       "y": 4,
       "type": "solid"
     },
     {
-      "x": 195,
-      "y": 4,
-      "type": "solid"
-    },
-    {
-      "x": 196,
+      "x": 193,
       "y": 4,
       "type": "solid"
     },
@@ -4075,17 +4075,17 @@
       "type": "solid"
     },
     {
+      "x": 190,
+      "y": 5,
+      "type": "solid"
+    },
+    {
       "x": 191,
       "y": 5,
       "type": "solid"
     },
     {
-      "x": 195,
-      "y": 5,
-      "type": "solid"
-    },
-    {
-      "x": 196,
+      "x": 193,
       "y": 5,
       "type": "solid"
     },
@@ -4455,11 +4455,6 @@
       "type": "spike_down"
     },
     {
-      "x": 75,
-      "y": 7,
-      "type": "spike_down"
-    },
-    {
       "x": 103,
       "y": 7,
       "type": "solid"
@@ -4590,11 +4585,6 @@
       "type": "solid"
     },
     {
-      "x": 75,
-      "y": 8,
-      "type": "solid"
-    },
-    {
       "x": 106,
       "y": 8,
       "type": "spike"
@@ -4691,11 +4681,6 @@
     },
     {
       "x": 74,
-      "y": 9,
-      "type": "spike"
-    },
-    {
-      "x": 75,
       "y": 9,
       "type": "spike"
     },
