@@ -18,9 +18,23 @@ DY_MIN: float = -3.0   # 3 blocks below
 DY_MAX: float = 5.0    # 5 blocks above
 
 
+def _reflect(value: float, lo: float, hi: float) -> float:
+    """Reflect *value* back inside [lo, hi] to avoid boundary pile-up."""
+    span = hi - lo
+    while value < lo or value > hi:
+        if value < lo:
+            value = lo + (lo - value)
+        if value > hi:
+            value = hi - (value - hi)
+        # Guard against degenerate span (shouldn't happen with our constants)
+        if span <= 0:
+            return (lo + hi) / 2
+    return value
+
+
 def clamp_neuron(dx: float, dy: float) -> tuple[float, float]:
-    """Clamp dx/dy to the allowed neuron zone."""
-    return max(DX_MIN, min(DX_MAX, dx)), max(DY_MIN, min(DY_MAX, dy))
+    """Reflect dx/dy back into the allowed neuron zone (avoids edge pile-up)."""
+    return _reflect(dx, DX_MIN, DX_MAX), _reflect(dy, DY_MIN, DY_MAX)
 
 
 @dataclass
