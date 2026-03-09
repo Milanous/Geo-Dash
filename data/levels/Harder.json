@@ -2037,15 +2037,40 @@
     {
       "x": 35,
       "y": 5,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 36,
       "y": 5,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 37,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 38,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 39,
+      "y": 5,
+      "type": "spike"
+    },
+    {
+      "x": 40,
+      "y": 5,
+      "type": "spike"
+    },
+    {
+      "x": 41,
+      "y": 5,
+      "type": "spike"
+    },
+    {
+      "x": 42,
       "y": 5,
       "type": "spike"
     },
@@ -2140,11 +2165,6 @@
       "type": "finish"
     },
     {
-      "x": 26,
-      "y": 6,
-      "type": "solid"
-    },
-    {
       "x": 27,
       "y": 6,
       "type": "solid"
@@ -2181,6 +2201,26 @@
     },
     {
       "x": 34,
+      "y": 6,
+      "type": "solid"
+    },
+    {
+      "x": 35,
+      "y": 6,
+      "type": "solid"
+    },
+    {
+      "x": 36,
+      "y": 6,
+      "type": "solid"
+    },
+    {
+      "x": 37,
+      "y": 6,
+      "type": "solid"
+    },
+    {
+      "x": 38,
       "y": 6,
       "type": "solid"
     },
@@ -2270,16 +2310,6 @@
       "type": "finish"
     },
     {
-      "x": 29,
-      "y": 7,
-      "type": "solid"
-    },
-    {
-      "x": 30,
-      "y": 7,
-      "type": "solid"
-    },
-    {
       "x": 31,
       "y": 7,
       "type": "solid"
@@ -2298,6 +2328,51 @@
       "x": 34,
       "y": 7,
       "type": "solid"
+    },
+    {
+      "x": 35,
+      "y": 7,
+      "type": "solid"
+    },
+    {
+      "x": 36,
+      "y": 7,
+      "type": "solid"
+    },
+    {
+      "x": 37,
+      "y": 7,
+      "type": "solid"
+    },
+    {
+      "x": 38,
+      "y": 7,
+      "type": "solid"
+    },
+    {
+      "x": 45,
+      "y": 7,
+      "type": "spike"
+    },
+    {
+      "x": 46,
+      "y": 7,
+      "type": "spike"
+    },
+    {
+      "x": 47,
+      "y": 7,
+      "type": "spike"
+    },
+    {
+      "x": 48,
+      "y": 7,
+      "type": "spike"
+    },
+    {
+      "x": 49,
+      "y": 7,
+      "type": "spike"
     },
     {
       "x": 70,
@@ -2335,17 +2410,22 @@
       "type": "finish"
     },
     {
-      "x": 32,
+      "x": 35,
       "y": 8,
       "type": "solid"
     },
     {
-      "x": 33,
+      "x": 36,
       "y": 8,
       "type": "solid"
     },
     {
-      "x": 34,
+      "x": 37,
+      "y": 8,
+      "type": "solid"
+    },
+    {
+      "x": 38,
       "y": 8,
       "type": "solid"
     },

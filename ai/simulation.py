@@ -59,11 +59,9 @@ class PopulationSim:
         self.x[mask] += PLAYER_SPEED * dt
         self.on_ground[mask] = False
 
-        # Floor clamp (world bottom boundary)
-        at_floor = self.y <= 0.0
-        self.y = np.maximum(self.y, 0.0)
-        np.putmask(self.vy, at_floor, 0.0)
-        self.on_ground |= at_floor
+        # World bottom boundary — falling below floor level is lethal
+        at_floor = mask & (self.y <= 0.0)
+        self.alive[at_floor] = False
 
         # Track maximum X reached
         np.maximum(self.max_x, self.x, out=self.max_x)
@@ -97,15 +95,12 @@ class PopulationSim:
         for i in alive_indices:
             if self.vy[i] > 0.0:
                 continue
-            left_col = int(self.x[i])
-            right_col = int(self.x[i] + 0.9)
+            center_col = int(self.x[i] + 0.5)
             bot_row = int(self.y[i])
-            for col in (left_col, right_col):
-                if self.level.tile_at(col, bot_row) == TileType.SOLID:
-                    self.y[i] = float(bot_row + 1)
-                    self.vy[i] = 0.0
-                    self.on_ground[i] = True
-                    break
+            if self.level.tile_at(center_col, bot_row) == TileType.SOLID:
+                self.y[i] = float(bot_row + 1)
+                self.vy[i] = 0.0
+                self.on_ground[i] = True
 
     def _resolve_walls(self) -> None:
         """Kill alive agents hitting the front face of a SOLID block.
@@ -114,7 +109,7 @@ class PopulationSim:
         check the column at the player's right edge; if SOLID and the
         agent cannot land on it (not falling or not near the top), it dies.
         """
-        LANDING_TOLERANCE = 0.35
+        LANDING_TOLERANCE = 0.10
         alive_indices = np.where(self.alive & ~self.finished)[0]
         for i in alive_indices:
             wall_col = int(self.x[i] + 0.9)
