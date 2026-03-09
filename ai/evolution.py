@@ -81,7 +81,7 @@ def _random_neuron() -> Neuron:
     return Neuron(
         dx=random.uniform(DX_MIN, DX_MAX),
         dy=random.uniform(DY_MIN, DY_MAX),
-        type=random.choice([TileType.SOLID, TileType.SPIKE]),
+        type=random.choice([TileType.AIR, TileType.SOLID, TileType.SPIKE]),
         polarity=random.choice(["green", "red"]),
     )
 

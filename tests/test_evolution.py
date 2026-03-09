@@ -396,7 +396,7 @@ class TestGenerateRandomBrain:
         brain = generate_random_brain()
         for net in brain.networks:
             for n in net.neurons:
-                assert n.type in (TileType.SOLID, TileType.SPIKE)
+                assert n.type in (TileType.AIR, TileType.SOLID, TileType.SPIKE)
 
 
 # ---------------------------------------------------------------------------
