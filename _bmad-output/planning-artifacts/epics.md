@@ -428,6 +428,66 @@ So that I can immediately try the level I am building.
 
 ---
 
+### Story 3.5: Parametric Level Generator
+
+As a player or AI trainer,
+I want to generate a playable level procedurally with configurable parameters,
+So that I can play or train AI on fresh, infinite content without using the editor.
+
+**Acceptance Criteria:**
+
+**Given** `engine/level_generator.py` exists with `GeneratorConfig` (dataclass) and `generate_level(config) -> World`
+**When** `GeneratorConfig` is instantiated with defaults
+**Then** the defaults are:
+- `length = 1000`, `height = 20`
+- `spike_density = 0.15`, `gap_probability = 0.10`, `max_gap_width = 3`
+- `platform_probability = 0.08`, `platform_min_width = 2`, `platform_max_width = 5`
+- `platform_min_height = 3`, `platform_max_height = 6`, `spike_under_platform = True`
+- `stair_probability = 0.06`, `stair_max_steps = 5`, `stair_step_height = 1`
+- `seed = None` (random)
+
+**When** `generate_level(config)` is called
+**Then** the returned `World` has:
+- A contiguous solid floor at `y=0` (with gap columns as AIR)
+- A safe start zone (first 6 columns: SOLID floor only, no spikes)
+- A safe end zone (last 4 columns before FINISH: SOLID floor only)
+- A `TileType.FINISH` tile at the last column
+- Floor spikes only on SOLID floor tiles (not on gap columns)
+- Floating platforms of SOLID tiles at the configured heights
+- `TileType.SPIKE_DOWN` tiles on the row directly below each platform tile when `spike_under_platform=True`
+- Staircase patterns: ascending columns of SOLID tiles rising from the floor
+- Identical output for identical `seed` values (full reproducibility)
+
+**And** `GeneratorConfig.__post_init__` raises `ValueError` for invalid parameter combinations
+
+**And** `engine/level_generator.py` imports neither `pygame` nor `renderer` nor `ai`
+
+**Given** `ui/gen_config_scene.py` exists with `GenConfigScene`
+**When** the scene is displayed
+**Then** all `GeneratorConfig` fields are shown in editable form, grouped by category:
+- Général (length, height, seed)
+- Dangers sol (spike_density, gap_probability, max_gap_width)
+- Plateformes (platform_* + spike_under_platform toggle)
+- Escaliers (stair_*)
+**And** pressing [Entrée] or clicking "Jouer" generates and launches `PlayScene`
+**And** pressing [T] or clicking "Entraîner IA" generates and launches `TrainConfigScene`
+**And** pressing [ESC] returns to `LevelSelectScene`
+
+**Given** `ui/level_select_scene.py` displays levels
+**When** the scene is drawn
+**Then** a "🎲 Niveau Aléatoire" entry is shown at the top of the list with a gold accent
+**And** this entry is visually distinct from saved levels (gold colour vs. cyan)
+**And** pressing [Enter] on this entry opens `GenConfigScene`
+**And** pressing [G] from anywhere in the list opens `GenConfigScene`
+
+**And** `tests/test_level_generator.py` covers:
+- `generate_level()` with default config produces a valid World
+- Safe start zone contains no spikes and no gaps
+- FINISH tile present at last column
+- Same seed produces identical output
+
+---
+
 ## Epic 4: Système de cerveaux IA
 
 ### Story 4.1: Neuron — Definition, Sensing & Tests
