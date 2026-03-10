@@ -50,6 +50,7 @@ FIELDS: list[tuple[str, str, type, str]] = [
     ("Proba. escalier",          "stair_probability",    float, "stair"),
     ("Nb. marchés max",          "stair_max_steps",      int,   "stair"),
     ("Hauteur par marche",       "stair_step_height",    int,   "stair"),
+    ("Largeur par marche",       "stair_step_width",     int,   "stair"),
 ]
 
 _SECTION_LABELS: dict[str, str] = {
@@ -396,4 +397,5 @@ class GenConfigScene(Scene):
             world=world,
             level_name="Niveau aléatoire",
             return_scene=self,
+            gen_config=config,
         )

@@ -58,11 +58,13 @@ class TrainConfigScene(Scene):
         world: World | None = None,
         level_name: str = "",
         return_scene: Scene | None = None,
+        gen_config=None,
     ) -> None:
         super().__init__()
         self._world = world
         self._level_name = level_name
         self._return_scene_instance = return_scene
+        self._gen_config = gen_config  # GeneratorConfig | None
         
         self.values: dict[str, str] = {
             attr: str(default) for _, attr, _, default in FIELDS
@@ -232,6 +234,7 @@ class TrainConfigScene(Scene):
                 world=self._world,
                 level_name=self._level_name,
                 return_scene=self._get_return_scene(),
+                gen_config=self._gen_config,
             )
         except ImportError:
             # AITrainScene not yet implemented (Story 5.4); store config for later

@@ -26,6 +26,7 @@ def _make_scene(**overrides: str) -> TrainConfigScene:
     scene._world = None
     scene._level_name = ""
     scene._return_scene_instance = None
+    scene._gen_config = None
     return scene
 
 
@@ -35,13 +36,13 @@ class TestDefaultValues:
     def test_values_match_field_defaults(self):
         scene = _make_scene()
         assert scene.values["population_size"] == "1000"
-        assert scene.values["max_generations"] == "100"
-        assert scene.values["top_n"] == "10"
+        assert scene.values["max_generations"] == "500"
+        assert scene.values["top_n"] == "200"
         assert scene.values["mutation_sigma"] == "1.0"
         assert scene.values["max_seconds_per_gen"] == "120.0"
-        assert scene.values["p_move"] == "0.7"
-        assert scene.values["p_neuron"] == "0.25"
-        assert scene.values["p_network"] == "0.05"
+        assert scene.values["p_move"] == "0.99"
+        assert scene.values["p_neuron"] == "0.008"
+        assert scene.values["p_network"] == "0.002"
 
     def test_all_fields_present(self):
         scene = _make_scene()

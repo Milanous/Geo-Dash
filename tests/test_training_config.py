@@ -7,14 +7,14 @@ class TestTrainingConfigDefaults:
     def test_default_instantiation(self):
         cfg = TrainingConfig()
         assert cfg.population_size == 1000
-        assert cfg.max_generations == 100
-        assert cfg.top_n == 10
+        assert cfg.max_generations == 500
+        assert cfg.top_n == 200
         assert cfg.mutation_sigma == 1.0
         assert cfg.max_seconds_per_gen == 120.0
-        assert cfg.p_move == 0.70
-        assert cfg.p_neuron == 0.25
-        assert cfg.p_network == 0.05
-        assert cfg.mutations_per_individual == 1
+        assert cfg.p_move == 0.99
+        assert cfg.p_neuron == 0.008
+        assert cfg.p_network == 0.002
+        assert cfg.mutations_per_individual == 3
 
 
 class TestTrainingConfigValidation:

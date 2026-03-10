@@ -63,12 +63,14 @@ class AITrainScene(Scene):
         world: World | None = None,
         level_name: str = "",
         return_scene: Scene | None = None,
+        gen_config=None,
     ) -> None:
         super().__init__()
         self.config = config
         self.level: World = world if world is not None else _build_fallback_world()
         self.level_name = level_name
         self._return_scene = return_scene
+        self._gen_config = gen_config  # GeneratorConfig | None — regenerate level each generation
         self.brains_dir = _DEFAULT_BRAINS_DIR
 
         # Generation state
@@ -124,6 +126,14 @@ class AITrainScene(Scene):
                         self.next_scene = self._return_scene
                         return True
                     return False
+                if event.key == pygame.K_r:
+                    from ui.replay_scene import ReplayScene
+                    self.next_scene = ReplayScene(
+                        world=self.level,
+                        return_scene=self,
+                        brains_dir=self.brains_dir,
+                    )
+                    return True
                 if event.key == pygame.K_RETURN and self.finished:
                     from ui.replay_scene import ReplayScene
                     self.next_scene = ReplayScene(
@@ -229,7 +239,7 @@ class AITrainScene(Scene):
             surface.blit(watch_hint, (sw // 2 - watch_hint.get_width() // 2, sh - 86))
 
         # ── Footer ────────────────────────────────────────────────
-        T.draw_footer(surface, "[ESC] Quitter")
+        T.draw_footer(surface, "[ESC] Quitter  [R] Replay")
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -280,6 +290,12 @@ class AITrainScene(Scene):
             next_gen.append(mutate(parent, self.config))
 
         self.brains = next_gen
+        # Regenerate a fresh random level for the next generation when a
+        # GeneratorConfig was supplied (e.g. from the level generator menu).
+        if self._gen_config is not None:
+            from engine.level_generator import generate_level
+            self.level = generate_level(self._gen_config)
+            self._finish_x = self.level.find_finish_x()
         self._sim = PopulationSim(self.brains, self.level, self.config)
         self._step_count = 0
 
