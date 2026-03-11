@@ -50,14 +50,29 @@ FIELDS: list[tuple[str, str, type, str]] = [
     ("Proba. escalier",          "stair_probability",    float, "stair"),
     ("Nb. marchés max",          "stair_max_steps",      int,   "stair"),
     ("Hauteur par marche",       "stair_step_height",    int,   "stair"),
-    ("Largeur par marche",       "stair_step_width",     int,   "stair"),
-]
+    ("Largeur par marche",       "stair_step_width",     int,   "stair"),    # ── Blocs suspendus ──────────────────────────────────────────────
+    ("Proba. blocs suspendus",   "stepping_stone_prob",      float, "stepping"),
+    ("Nb. min pierres",          "stepping_stone_min_count", int,   "stepping"),
+    ("Nb. max pierres",          "stepping_stone_max_count", int,   "stepping"),
+    # ── Dangers joueur ───────────────────────────────────────────────
+    ("Densité piques sol (y=1)", "floor_spike_density",  float, "hazard"),
+    # ── Escaliers à trous ────────────────────────────────────────────
+    ("Proba. esc. à trous",      "gapped_stair_prob",       float, "gstair"),
+    ("Nb. marches max (trous)",  "gapped_stair_max_steps",  int,   "gstair"),
+    ("Largeur marche (trous)",   "gapped_stair_step_width", int,   "gstair"),
+    # ── Escaliers à piques ───────────────────────────────────────────
+    ("Proba. esc. à piques",     "spiked_stair_prob",       float, "spstair"),
+    ("Nb. marches max (piques)", "spiked_stair_max_steps",  int,   "spstair"),
+    ("Largeur marche (piques)",  "spiked_stair_step_width", int,   "spstair"),]
 
 _SECTION_LABELS: dict[str, str] = {
     "base":     "GÉNÉRAL",
     "hazard":   "DANGERS SOL",
     "platform": "PLATEFORMES",
     "stair":    "ESCALIERS",
+    "stepping": "BLOCS SUSPENDUS",
+    "gstair":   "ESCALIERS À TROUS",
+    "spstair":  "ESCALIERS À PIQUES",
 }
 
 _SECTION_ACCENT: dict[str, tuple[int, int, int]] = {
@@ -65,6 +80,9 @@ _SECTION_ACCENT: dict[str, tuple[int, int, int]] = {
     "hazard":   T.RED,
     "platform": T.PURPLE,
     "stair":    T.GOLD,
+    "stepping": T.CYAN,
+    "gstair":   T.GOLD,
+    "spstair":  T.RED,
 }
 
 # ---------------------------------------------------------------------------
@@ -87,7 +105,7 @@ _FOOTER_H = T.HINT_BAR_H
 _DIGITS = set("0123456789")
 
 # How many rows fit in one "column" before we split to a second column
-_ROWS_PER_COL = 9
+_ROWS_PER_COL = 14
 
 
 class GenConfigScene(Scene):
