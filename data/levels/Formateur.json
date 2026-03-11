@@ -957,7 +957,7 @@
     {
       "x": 192,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 193,
@@ -987,12 +987,12 @@
     {
       "x": 198,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 199,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 200,
@@ -1002,17 +1002,17 @@
     {
       "x": 201,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 202,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 203,
       "y": 1,
-      "type": "spike"
+      "type": "solid"
     },
     {
       "x": 204,
@@ -2060,6 +2060,11 @@
       "type": "solid"
     },
     {
+      "x": 192,
+      "y": 2,
+      "type": "solid"
+    },
+    {
       "x": 193,
       "y": 2,
       "type": "solid"
@@ -2070,7 +2075,32 @@
       "type": "solid"
     },
     {
+      "x": 198,
+      "y": 2,
+      "type": "solid"
+    },
+    {
+      "x": 199,
+      "y": 2,
+      "type": "solid"
+    },
+    {
       "x": 200,
+      "y": 2,
+      "type": "solid"
+    },
+    {
+      "x": 201,
+      "y": 2,
+      "type": "solid"
+    },
+    {
+      "x": 202,
+      "y": 2,
+      "type": "solid"
+    },
+    {
+      "x": 203,
       "y": 2,
       "type": "solid"
     },
@@ -2900,6 +2930,11 @@
       "type": "solid"
     },
     {
+      "x": 192,
+      "y": 3,
+      "type": "solid"
+    },
+    {
       "x": 193,
       "y": 3,
       "type": "solid"
@@ -2910,7 +2945,32 @@
       "type": "solid"
     },
     {
+      "x": 198,
+      "y": 3,
+      "type": "solid"
+    },
+    {
+      "x": 199,
+      "y": 3,
+      "type": "solid"
+    },
+    {
       "x": 200,
+      "y": 3,
+      "type": "solid"
+    },
+    {
+      "x": 201,
+      "y": 3,
+      "type": "solid"
+    },
+    {
+      "x": 202,
+      "y": 3,
+      "type": "solid"
+    },
+    {
+      "x": 203,
       "y": 3,
       "type": "solid"
     },
@@ -3740,6 +3800,11 @@
       "type": "solid"
     },
     {
+      "x": 192,
+      "y": 4,
+      "type": "solid"
+    },
+    {
       "x": 193,
       "y": 4,
       "type": "solid"
@@ -3750,7 +3815,32 @@
       "type": "solid"
     },
     {
+      "x": 198,
+      "y": 4,
+      "type": "solid"
+    },
+    {
+      "x": 199,
+      "y": 4,
+      "type": "solid"
+    },
+    {
       "x": 200,
+      "y": 4,
+      "type": "solid"
+    },
+    {
+      "x": 201,
+      "y": 4,
+      "type": "solid"
+    },
+    {
+      "x": 202,
+      "y": 4,
+      "type": "solid"
+    },
+    {
+      "x": 203,
       "y": 4,
       "type": "solid"
     },
@@ -4115,6 +4205,11 @@
       "type": "solid"
     },
     {
+      "x": 192,
+      "y": 5,
+      "type": "solid"
+    },
+    {
       "x": 193,
       "y": 5,
       "type": "solid"
@@ -4125,7 +4220,32 @@
       "type": "solid"
     },
     {
+      "x": 198,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 199,
+      "y": 5,
+      "type": "solid"
+    },
+    {
       "x": 200,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 201,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 202,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 203,
       "y": 5,
       "type": "solid"
     },
@@ -4136,6 +4256,21 @@
     },
     {
       "x": 205,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 206,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 207,
+      "y": 5,
+      "type": "solid"
+    },
+    {
+      "x": 208,
       "y": 5,
       "type": "solid"
     },
@@ -4660,6 +4795,11 @@
       "type": "solid"
     },
     {
+      "x": 226,
+      "y": 8,
+      "type": "solid"
+    },
+    {
       "x": 227,
       "y": 8,
       "type": "solid"
@@ -4790,9 +4930,19 @@
       "type": "solid"
     },
     {
+      "x": 258,
+      "y": 9,
+      "type": "solid"
+    },
+    {
       "x": 259,
       "y": 9,
       "type": "finish"
+    },
+    {
+      "x": 260,
+      "y": 9,
+      "type": "solid"
     },
     {
       "x": 110,
