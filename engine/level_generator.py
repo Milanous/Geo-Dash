@@ -299,7 +299,8 @@ def _place_floor(world: World, cfg: GeneratorConfig, rng: random.Random) -> None
             world.set_tile(col, 0, TileType.SOLID)
         else:
             if rng.random() < cfg.spike_density:
-                world.set_tile(col, 0, TileType.SPIKE)
+                world.set_tile(col, 0, TileType.SOLID)
+                world.set_tile(col, 1, TileType.SPIKE)
             else:
                 world.set_tile(col, 0, TileType.SOLID)
 
@@ -346,7 +347,8 @@ def _place_platforms(world: World, cfg: GeneratorConfig, rng: random.Random) -> 
                 # Skip if floor below already has a spike → impossible corridor
                 if cfg.spike_under_platform and height - 1 >= 1:
                     floor_tile = world.tile_at(pc, 0)
-                    if not is_spike(floor_tile):
+                    player_tile = world.tile_at(pc, 1)
+                    if not is_spike(floor_tile) and not is_spike(player_tile):
                         world.set_tile(pc, height - 1, TileType.SPIKE_DOWN)
 
             # Register forbidden floor zone: platform body + 1-block margin each side
@@ -377,6 +379,9 @@ def _fix_floor_under_platforms(
         tile = world.tile_at(col, 0)
         if tile == TileType.AIR or is_spike(tile):
             world.set_tile(col, 0, TileType.SOLID)
+        # Also clear any spike at player level (y=1) in the safe zone
+        if is_spike(world.tile_at(col, 1)):
+            world.set_tile(col, 1, TileType.AIR)
 
 
 def _place_stairs(
